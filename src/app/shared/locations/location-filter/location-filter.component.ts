@@ -181,7 +181,12 @@ export class LocationFilterComponent implements OnInit, AfterViewInit {
           this.locationDropdownOptions = locs;
           this.allEncounterLocations = locs;
           this.counties = _.groupBy(locations, 'stateProvince');
-          this.countyDropdownOptions = _.compact(_.keys(this.counties));
+          this.countyDropdownOptions = _.compact(_.keys(this.counties))
+            .filter(function (el) {
+              return el !== 'null' && el !== 'Test';
+            })
+            .sort();
+
           _.each(locations, (location) => {
             const details = {
               uuid: location.uuid,
