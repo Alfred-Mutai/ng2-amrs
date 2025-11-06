@@ -57,6 +57,7 @@ import { AhdReportComponent } from './ahd-report/ahd-report.component';
 import { AhdMonthlyReportPatientlistComponent } from 'src/app/hiv-care-lib/ahd-monthly-report/ahd-monthly-report-patientlist/ahd-monthly-report-patientlist.component';
 import { PlhivNcdV2ReportPatientListComponent } from 'src/app/hiv-care-lib/plhiv-ncd-v2-report/plhiv-ncd-v2-report-patient-list/plhiv-ncd-v2-report-patient-list.component';
 import { PlhivNcdV2ReportComponent } from './plhiv-ncd-v2-report/plhiv-ncd-v2-report.component';
+import { CaseSurveillanceComponent } from 'src/app/data-analytics-dashboard/hiv/monthly-reports-dashboard/case-surveillance/case-surveillance.component';
 
 const routes: Routes = [
   {
@@ -276,6 +277,19 @@ const routes: Routes = [
           {
             path: '',
             component: AhdReportComponent
+          },
+          {
+            path: 'patient-list',
+            component: AhdMonthlyReportPatientlistComponent
+          }
+        ]
+      },
+      {
+        path: 'case-surveillance-reports',
+        children: [
+          {
+            path: '',
+            component: CaseSurveillanceComponent
           },
           {
             path: 'patient-list',

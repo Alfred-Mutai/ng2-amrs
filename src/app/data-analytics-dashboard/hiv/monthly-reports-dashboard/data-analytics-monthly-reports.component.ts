@@ -56,6 +56,12 @@ export class DataAnalyticsMonthlyReportComponent implements OnInit {
         description: '',
         url: 'ahd-monthly-report',
         icon: 'fa'
+      },
+      {
+        title: 'Case Surveillance Report',
+        description: '',
+        url: 'case-surveillance-reports',
+        icon: 'fa'
       }
     ];
   }

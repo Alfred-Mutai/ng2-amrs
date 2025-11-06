@@ -118,6 +118,7 @@ export class HivProgramSnapshotComponent implements OnInit {
   public displayProgram = true;
   public gbvScreeningLabel: String;
   public eligibleForCovidVaccine = false;
+  public past3Months = false;
 
   // IIT Predictions
   public hasPredictedScore = false;
@@ -184,6 +185,17 @@ export class HivProgramSnapshotComponent implements OnInit {
         this.hasLoadedData = true;
 
         if (results[0]) {
+          const arvStartDateRaw = results[0] && results[0].arv_start_date;
+          if (arvStartDateRaw) {
+            const arvStartDate = moment(arvStartDateRaw);
+            const threeMonthsAgo = moment().subtract(3, 'months');
+
+            this.past3Months =
+              arvStartDate.isValid() && arvStartDate.isBefore(threeMonthsAgo);
+          } else {
+            // Handle null or missing ARV start date
+            this.past3Months = false;
+          }
           latestVlResult = this.getlatestVlResult(results);
           latestVlDate = latestVlResult.vl_1_date;
           latestVl = latestVlResult.vl_1;
@@ -317,31 +329,33 @@ export class HivProgramSnapshotComponent implements OnInit {
         isEligible = 1;
       }
     });
-    switch (true) {
-      case isEligible === 1:
-        this.viralLoadCategory = 'Missing VL';
-        this.viralloadColor = 'purple';
-        break;
-      case latestViralLoad < 50 && latestViralLoad != null:
-        this.viralLoadCategory = 'LDL';
-        this.viralloadColor = 'green';
-        break;
-      case latestViralLoad >= 50 && latestViralLoad < 200:
-        this.viralLoadCategory = 'Low Risk Low Level Viremia';
-        this.viralloadColor = 'yellowgreen';
-        break;
-      case latestViralLoad >= 200 && latestViralLoad < 1000:
-        this.viralLoadCategory = 'High Risk Low Level Viremia';
-        this.viralloadColor = 'orange';
-        break;
-      case latestViralLoad >= 1000:
-        this.viralLoadCategory = 'Suspected Treatment Failure';
-        this.viralloadColor = 'red';
-        break;
-      default:
-        this.viralLoadCategory = 'N/A';
-        this.viralloadColor = 'black';
-        break;
+    if (this.past3Months) {
+      switch (true) {
+        case isEligible === 1:
+          this.viralLoadCategory = 'Missing VL';
+          this.viralloadColor = 'purple';
+          break;
+        case latestViralLoad < 50 && latestViralLoad != null:
+          this.viralLoadCategory = 'LDL';
+          this.viralloadColor = 'green';
+          break;
+        case latestViralLoad >= 50 && latestViralLoad < 200:
+          this.viralLoadCategory = 'Low Risk Low Level Viremia';
+          this.viralloadColor = 'yellowgreen';
+          break;
+        case latestViralLoad >= 200 && latestViralLoad < 1000:
+          this.viralLoadCategory = 'High Risk Low Level Viremia';
+          this.viralloadColor = 'orange';
+          break;
+        case latestViralLoad >= 1000:
+          this.viralLoadCategory = 'Suspected Treatment Failure';
+          this.viralloadColor = 'red';
+          break;
+        default:
+          this.viralLoadCategory = 'N/A';
+          this.viralloadColor = 'black';
+          break;
+      }
     }
   }
 
