@@ -1,0 +1,447 @@
+<h4 class="component-title text-success">
+  <span class="fa fa-table"></span>{{ reportName }}
+</h4>
+
+<div class="loader" *ngIf="isLoading">
+  <span><i class="fa fa-spinner fa-spin"></i>Loading...</span>
+</div>
+
+<p-tabView>
+  <div>
+    <p-tabPanel header="Monthly" leftIcon="fa-calendar-o">
+      <report-filters
+        [(startDate)]="startDate"
+        [(endDate)]="endDate"
+        [enabledControls]="enabledControls"
+        [reportName]="reportName"
+        (generateReport)="generateReport()"
+      >
+      </report-filters>
+    </p-tabPanel>
+  </div>
+</p-tabView>
+
+<div class="alert alert-danger fade in" *ngIf="showInfoMessage">
+  <a href="#" class="close" data-dismiss="alert">&times;</a>
+  <h4 *ngIf="!statusError">
+    <strong><span class="glyphicon glyphicon-warning-sign"></span> </strong> An
+    error occurred while trying to load the report. Please try again.
+  </h4>
+  <p>
+    <small>{{ errorMessage }}</small>
+  </p>
+</div>
+
+<div class="alert alert-danger fade in" *ngIf="showInfoMessage">
+  <a href="#" class="close" data-dismiss="alert">&times;</a>
+  <h4 *ngIf="!statusError">
+    <strong><span class="glyphicon glyphicon-warning-sign"></span> </strong> An
+    error occurred while trying to load the report. Please try again.
+  </h4>
+  <p>
+    <small>{{ errorMessage }}</small>
+  </p>
+</div>
+
+<!-- <div
+  class="btn-group pull-left"
+  *ngIf="prepRegisterData && prepRegisterData.length > 0"
+>
+  <button
+    class="btn btn-primary"
+    (click)="takeSnapshotAndExport()"
+    [disabled]="prepRegisterData.length == 0"
+  >
+    <i class="fa fa-download"> </i> Download Pdf
+  </button>
+</div> -->
+<br />
+<!-- ================= MOH 222 DAILY REGISTER ================= -->
+
+<div class="moh222-container">
+  <!-- ===== SCROLLABLE AREA ===== -->
+  <div class="moh222-scrollable">
+    <!-- ===== TABLE + REVISION ===== -->
+    <div class="moh222-main">
+      <!-- ===== REVISION TOP-RIGHT ===== -->
+      <div class="moh222-revision-top">
+        MOH 222 - DAILY REGISTER (Revised July 2022)
+      </div>
+
+      <!-- ===== REGISTER TABLE ===== -->
+      <div class="moh222-table-wrapper">
+        <table class="moh222-table">
+          <!-- ===== TITLE ROWS ===== -->
+          <thead>
+            <!-- Title Rows -->
+            <tr>
+              <th colspan="29" class="table-title">MINISTRY OF HEALTH</th>
+            </tr>
+            <tr>
+              <th colspan="29" class="table-title">
+                DIABETES AND HYPERTENSION COMPREHENSIVE CARE
+              </th>
+            </tr>
+            <tr>
+              <th colspan="29" class="table-title">
+                DAILY ACTIVITY REGISTER – MOH 222
+              </th>
+            </tr>
+
+            <!-- Column Letters Row -->
+            <tr class="column-letters">
+              <th>A</th>
+              <th>B</th>
+              <th>C</th>
+              <th>D</th>
+              <th>E</th>
+              <th>F</th>
+              <th>G</th>
+              <th>H</th>
+              <th>I</th>
+              <th>J</th>
+              <th>K</th>
+              <th>L</th>
+              <th>M</th>
+              <th>N</th>
+              <th colspan="2">O</th>
+              <th>P</th>
+              <th>Q</th>
+              <th>R</th>
+              <th>S</th>
+              <th>T</th>
+              <th>U</th>
+              <th>V</th>
+              <th>W</th>
+              <th>X</th>
+              <th>Y</th>
+              <th>Z</th>
+              <th>AA</th>
+            </tr>
+
+            <!-- Table Headers -->
+            <tr>
+              <th rowspan="2">Date</th>
+              <th rowspan="2">Patient No.</th>
+              <th rowspan="2">Patient Name</th>
+              <th rowspan="2">Age (in years)</th>
+              <th rowspan="2" class="rotate">
+                <span
+                  >Sex:<br />
+                  Indicate <br />(M/F/others)</span
+                >
+              </th>
+              <th rowspan="2" class="rotate">
+                <span
+                  >Visit for the <br />
+                  month:1,2,3 etc</span
+                >
+              </th>
+
+              <!-- Vertical headers with word wrap -->
+              <th rowspan="2" class="rotate"><span>Weight (kg)</span></th>
+              <th rowspan="2" class="rotate"><span>Height (cm)</span></th>
+              <th rowspan="2" class="rotate"><span>BMI (Key 1)</span></th>
+              <th rowspan="2" class="rotate">
+                <span>Waist<br />Circumference</span>
+              </th>
+              <th rowspan="2" class="rotate"><span>BP (mmHg)</span></th>
+              <th rowspan="2" class="rotate">
+                <span>HTN <br />(Key 2)</span>
+              </th>
+              <th rowspan="2" class="rotate">
+                <span
+                  >Diabetes<br />
+                  (Key 2)</span
+                >
+              </th>
+              <th rowspan="2" class="rotate">
+                <span
+                  >Both diabetes(DM)<br />and hypertension(HTN)<br />
+                  (KEY 2)</span
+                >
+              </th>
+
+              <!-- Blood Sugar merged -->
+              <th colspan="2">Blood Sugar (mmol/L)</th>
+
+              <th rowspan="2" class="rotate">
+                <span>HbA1C (%)<br />within 3 months</span>
+              </th>
+              <th rowspan="2" class="rotate"><span>Diagnosis (Key 3)</span></th>
+              <th rowspan="2" class="rotate">
+                <span
+                  >Complications /<br />Comorbidities<br />
+                  Diagnosed (Key 4)</span
+                >
+              </th>
+              <th rowspan="2" class="rotate"><span>Treatment (Key 5)</span></th>
+              <th rowspan="2" class="rotate">
+                <span>Diabetic Foot<br />Screening (Y/N)</span>
+              </th>
+              <th rowspan="2" class="rotate">
+                <span>Diabetic Foot<br />(New, Known, Nil)</span>
+              </th>
+              <th rowspan="2" class="rotate">
+                <span>Foot Risk Assessment<br />(Key 6- A/B)</span>
+              </th>
+              <th rowspan="2" class="rotate">
+                <span
+                  >Footcare Outcome<br />
+                  (Key 7)</span
+                >
+              </th>
+              <th rowspan="2" class="rotate">
+                <span
+                  >Screened for<br />
+                  TB (Y/N)</span
+                >
+              </th>
+              <th rowspan="2" class="rotate">
+                <span
+                  >TB status after<br />
+                  screening (Key 8)</span
+                >
+              </th>
+              <th rowspan="2" class="rotate"><span>Active NHIF</span></th>
+              <th rowspan="2"><span>Remarks</span></th>
+            </tr>
+
+            <!-- Blood Sugar Sub-columns -->
+            <tr>
+              <th><span>RBS</span></th>
+              <th><span>FBS</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Render actual records -->
+            <tr *ngFor="let r of prepRegisterData">
+              <td>{{ r.date }}</td>
+              <td>{{ r.patientNo }}</td>
+              <td class="left">{{ r.patientName }}</td>
+              <td>{{ r.age }}</td>
+              <td>{{ r.sex }}</td>
+              <td>{{ r.visitType }}</td>
+
+              <td>{{ r.weight }}</td>
+              <td>{{ r.height }}</td>
+              <td>{{ r.bmi }}</td>
+              <td>{{ r.waist }}</td>
+              <td>{{ r.bp }}</td>
+              <td>{{ r.htn }}</td>
+              <td>{{ r.diabetes }}</td>
+              <td>{{ r.bothDmHtn }}</td>
+
+              <td>{{ r.rbs }}</td>
+              <td>{{ r.fbs }}</td>
+
+              <td>{{ r.hba1c }}</td>
+              <td>{{ r.diagnosis }}</td>
+              <td>{{ r.complications }}</td>
+              <td>{{ r.treatment }}</td>
+              <td>{{ r.footScreening }}</td>
+              <td>{{ r.diabeticFoot }}</td>
+              <td>{{ r.footRisk }}</td>
+              <td>{{ r.footOutcome }}</td>
+              <td>{{ r.tbScreened }}</td>
+              <td>{{ r.tbStatus }}</td>
+              <td>{{ r.activeNhif }}</td>
+              <td class="left">{{ r.remarks }}</td>
+            </tr>
+
+            <!-- Add blank rows if less than 20 -->
+            <tr *ngFor="let n of [].constructor(18 - prepRegisterData.length)">
+              <td *ngFor="let i of [].constructor(28)">&nbsp;</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== KEY ON RIGHT ===== -->
+    <div
+      class="moh222-key"
+      style="width: 350px; padding: 8px; font-size: 12px; line-height: 1.4"
+    >
+      <div class="key-title fw-bold"><u>KEY</u></div>
+
+      <div class="key-block">
+        <strong>1. BMI</strong>
+        <div>a. ≤ 18.4</div>
+        <div>b. 18.5 - 24.9</div>
+        <div>c. 25 - 29.2</div>
+        <div>d. ≥ 30</div>
+      </div>
+
+      <div class="key-block">
+        <strong>2. HTN or DM or Both Status</strong>
+        <div>a. Newly Diagnosed</div>
+        <div>b. Previously Known diagnosis</div>
+      </div>
+
+      <div class="key-block">
+        <strong>3. Diagnosis</strong>
+        <div>a. Type 1 Diabetes Mellitus (T1 DM)</div>
+        <div>b. Type 2 Diabetes Mellitus (T2 DM)</div>
+        <div>c. Gestational Diabetes Mellitus (GDM)</div>
+        <div>d. Diabetes secondary to other causes</div>
+        <div>e. Hypertension</div>
+        <div>f. Pre-Eclampsia</div>
+      </div>
+
+      <div class="key-block">
+        <strong>4. Complications / Co-morbidities</strong>
+        <div>
+          <strong>a1.</strong> New Retinopathy,
+          <strong>a2.</strong> Pre-existing Retinopathy;
+          <strong>b1.</strong> New Peripheral Neuropathy,
+          <strong>b2.</strong> Pre-existing Peripheral Neuropathy;
+          <strong>c1.</strong> New Nephropathy / Kidney Disease / Renal Disease,
+          <strong>c2.</strong> Pre-existing Nephropathy / Kidney Disease / Renal
+          Disease; <strong>e1.</strong> New Ischemic Heart Disease,
+          <strong>e2.</strong> Pre-existing Ischemic Heart Disease;
+          <strong>g1.</strong> New Peripheral Vascular Disease,
+          <strong>g2.</strong> Pre-existing Peripheral Vascular Disease;
+          <strong>h1.</strong> New Erectile Dysfunction,
+          <strong>h2.</strong> Pre-existing Erectile Dysfunction;
+          <strong>j1.</strong> New Cataracts, <strong>j2.</strong> Pre-existing
+          Cataracts; <strong>k1.</strong> New Dental Complication,
+          <strong>k2.</strong> Pre-existing Dental;
+          <strong>l1.</strong> Dyslipidemia, <strong>l2.</strong> Dyslipidemia
+          (pre-existing); <strong>m1.</strong> New Obesity,
+          <strong>m2.</strong> Pre-existing Obesity; <strong>n1.</strong> New
+          HIV, <strong>n2.</strong> Pre-existing HIV; <strong>o1.</strong> New
+          TB, <strong>o2.</strong> Pre-existing TB
+        </div>
+      </div>
+
+      <div class="key-block">
+        <strong>5. Treatment</strong>
+        <div>a. Diet & Physical Activity</div>
+        <div>b. Oral Glucose-Lowering Agents (OGLAs)</div>
+        <div>c. Insulin and OGLAs</div>
+        <div>d. Insulin</div>
+        <div>e. Antihypertensive</div>
+        <div>f. Herbal</div>
+        <div>g. Other</div>
+      </div>
+
+      <div class="key-block">
+        <strong>6-A. Low Risk Patient</strong>
+        <div>All of the following:</div>
+        <div>i. Intact protective sensation</div>
+        <div>ii. Pedal pulses present</div>
+        <div>iii. No deformity</div>
+        <div>iv. No prior foot ulcer</div>
+        <div>v. No amputation</div>
+      </div>
+
+      <div class="key-block">
+        <strong>6-B. High Risk Patient</strong>
+        <div>One or more of the following:</div>
+        <div>i. Loss of protective sensation</div>
+        <div>ii. Absent pedal pulses</div>
+        <div>iii. Foot deformity</div>
+        <div>iv. History of foot ulcer</div>
+        <div>v. Prior amputation</div>
+      </div>
+
+      <div class="key-block">
+        <strong>7. Outcome</strong>
+        <div>a. Ulcer healed</div>
+        <div>b. Surgical debridement</div>
+        <div>c. Amputation</div>
+        <div>d. Loss to follow-up</div>
+        <div>e. Admitted</div>
+        <div>f. Referred</div>
+      </div>
+
+      <div class="key-block">
+        <strong>8. TB Status after Screening</strong>
+        <div>1. Presumed TB</div>
+        <div>2. No signs</div>
+        <div>3. On TB Treatment</div>
+      </div>
+    </div>
+
+    <!-- <div class="moh222-key">
+      <div class="key-title">KEY</div>
+
+      <div class="key-block">
+        <strong>1. BMI</strong>
+        <div>a. ≤ 18.4</div>
+        <div>b. 18.5 – 24.9</div>
+        <div>c. 25 – 29.9</div>
+        <div>d. ≥ 30</div>
+      </div>
+
+      <div class="key-block">
+        <strong>2. Status</strong>
+        <div>a. Newly diagnosed</div>
+        <div>b. Previously known</div>
+      </div>
+
+      <div class="key-block">
+        <strong>3. Diagnosis</strong>
+        <div>a. Type 1 DM</div>
+        <div>b. Type 2 DM</div>
+        <div>c. GDM</div>
+        <div>d. DM secondary</div>
+        <div>e. Hypertension</div>
+        <div>f. Pre-Eclampsia</div>
+      </div>
+
+      <div class="key-block">
+        <strong>4. Complications</strong>
+        <div>a. Retinopathy</div>
+        <div>b. Neuropathy</div>
+        <div>c. Nephropathy</div>
+        <div>d. IHD</div>
+        <div>e. PVD</div>
+        <div>f. Stroke</div>
+      </div>
+
+      <div class="key-block">
+        <strong>5. Treatment</strong>
+        <div>a. Diet & Physical activity</div>
+        <div>b. OGLAs</div>
+        <div>c. Insulin + OGLAs</div>
+        <div>d. Insulin</div>
+        <div>e. Antihypertensive</div>
+        <div>f. Herbal</div>
+      </div>
+
+      <div class="key-block">
+        <strong>6. Foot Risk</strong>
+        <div>A. Low risk</div>
+        <div>B. High risk</div>
+      </div>
+
+      <div class="key-block">
+        <strong>7. Footcare Outcome</strong>
+        <div>a. Ulcer healed</div>
+        <div>b. Debridement</div>
+        <div>c. Amputation</div>
+        <div>d. Loss to follow-up</div>
+        <div>e. Admitted</div>
+        <div>f. Referred</div>
+      </div>
+
+      <div class="key-block">
+        <strong>8. TB Status</strong>
+        <div>1. Presumed TB</div>
+        <div>2. No signs</div>
+        <div>3. On TB treatment</div>
+      </div>
+    </div> -->
+  </div>
+</div>
+
+<div
+  *ngIf="prepRegisterData.length == 0 && generated"
+  class="text-center rounded"
+>
+  <i class="alert alert-info text-center" style="width: 100%"
+    >No record found</i
+  >
+</div>

@@ -75,6 +75,9 @@ import { PncRegisterComponent } from './registers/pnc-register/pnc-register.comp
 import { DefaultertracingRegisterComponent } from './registers/defaultertracing-register/defaultertracing-register.component';
 import { PrepdailyRegisterComponent } from './registers/prepdaily-register/prepdaily-register.component';
 import { CntdailyRegisterComponent } from './registers/cntdaily-register/cntdaily-register.component';
+import { NcddailyRegisterComponent } from './registers/ncddaily-register/ncddaily-register.component';
+import { NcdpermanentRegisterComponent } from './registers/ncdpermanent-register/ncdpermanent-register.component';
+import { NcdmonthlyRegisterComponent } from './registers/ncdmonthly-register/ncdmonthly-register.component';
 
 const routes: Routes = [
   {
@@ -412,6 +415,33 @@ const routes: Routes = [
           {
             path: '',
             component: OtzRegisterComponent
+          }
+        ]
+      },
+      {
+        path: 'ncddaily-register',
+        children: [
+          {
+            path: '',
+            component: NcddailyRegisterComponent
+          }
+        ]
+      },
+      {
+        path: 'ncdpermanent-register',
+        children: [
+          {
+            path: '',
+            component: NcdpermanentRegisterComponent
+          }
+        ]
+      },
+      {
+        path: 'ncdmonthly-register',
+        children: [
+          {
+            path: '',
+            component: NcdmonthlyRegisterComponent
           }
         ]
       }

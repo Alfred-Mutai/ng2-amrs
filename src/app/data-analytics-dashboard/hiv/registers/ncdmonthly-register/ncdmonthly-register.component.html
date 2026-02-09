@@ -1,0 +1,689 @@
+<h4 class="component-title text-success">
+  <span class="fa fa-table"></span>{{ reportName }}
+</h4>
+
+<div class="loader" *ngIf="isLoading">
+  <span><i class="fa fa-spinner fa-spin"></i>Loading...</span>
+</div>
+
+<p-tabView>
+  <div>
+    <p-tabPanel header="Monthly" leftIcon="fa-calendar-o">
+      <report-filters
+        [(startDate)]="startDate"
+        [(endDate)]="endDate"
+        [enabledControls]="enabledControls"
+        [reportName]="reportName"
+        (generateReport)="generateReport()"
+      >
+      </report-filters>
+    </p-tabPanel>
+  </div>
+</p-tabView>
+
+<div class="alert alert-danger fade in" *ngIf="showInfoMessage">
+  <a href="#" class="close" data-dismiss="alert">&times;</a>
+  <h4 *ngIf="!statusError">
+    <strong><span class="glyphicon glyphicon-warning-sign"></span> </strong> An
+    error occurred while trying to load the report. Please try again.
+  </h4>
+  <p>
+    <small>{{ errorMessage }}</small>
+  </p>
+</div>
+
+<div class="alert alert-danger fade in" *ngIf="showInfoMessage">
+  <a href="#" class="close" data-dismiss="alert">&times;</a>
+  <h4 *ngIf="!statusError">
+    <strong><span class="glyphicon glyphicon-warning-sign"></span> </strong> An
+    error occurred while trying to load the report. Please try again.
+  </h4>
+  <p>
+    <small>{{ errorMessage }}</small>
+  </p>
+</div>
+
+<!-- <div
+  class="btn-group pull-left"
+  *ngIf="prepRegisterData && prepRegisterData.length > 0"
+>
+  <button
+    class="btn btn-primary"
+    (click)="takeSnapshotAndExport()"
+    [disabled]="prepRegisterData.length == 0"
+  >
+    <i class="fa fa-download"> </i> Download Pdf
+  </button>
+</div> -->
+<br />
+<!-- ===== SCROLLABLE AREA ===== -->
+<!-- <div class="a4-wrapper">
+  <table class="moh740">
+    <tr>
+      <td colspan="2" class="bold">Ministry of Health</td>
+      <td colspan="3" class="right bold">MOH 740 (Revised July 2022)</td>
+    </tr>
+    <tr>
+      <td colspan="5" class="center bold">
+        Diabetes and Hypertension Comprehensive Care: Monthly Summary Form
+      </td>
+    </tr>
+
+    <tr>
+      <td colspan="2">Name of the facility:</td>
+      <td>MFL code:</td>
+      <td>County:</td>
+      <td>Sub County:</td>
+    </tr>
+    <tr>
+      <td colspan="2">Month/Year:</td>
+      <td colspan="3"></td>
+    </tr>
+
+    <tr class="hdr">
+      <td>Data Element</td>
+      <td>Male</td>
+      <td>Female</td>
+      <td colspan="2">Total</td>
+    </tr>
+
+    <tr class="section">
+      <td colspan="5">DIABETES</td>
+    </tr>
+    <tr>
+      <td>Cumulative no. of diabetes patients in care</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>No. of newly diagnosed diabetes cases</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>Revisits to clinic/Known DM</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+
+    <tr class="bold">
+      <td>Total No. with Type 1</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">0–5 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">6–9 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">10–19 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">20–35 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">&gt;36 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+
+    <tr class="bold">
+      <td>Total No. with Type 2</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">0–18 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">19–35 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">36–60 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">&gt;60 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+
+    <tr>
+      <td>No. diagnosed for Gestational Diabetes Mellitus</td>
+      <td colspan="4" class="center">N/A</td>
+    </tr>
+    <tr>
+      <td>No. of Diabetes secondary to other causes</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+
+    <tr class="section">
+      <td colspan="5">HYPERTENSION</td>
+    </tr>
+    <tr>
+      <td>Cumulative no. of hypertension patients in care</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>No. of newly diagnosed hypertension cases</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>Re-visit to clinic/Known HTN</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+
+    <tr class="bold">
+      <td>No. with hypertension</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">0–18 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">19–35 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">36–60 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">&gt;60 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+
+    <tr class="section">
+      <td colspan="5">CO-MORBID WITH BOTH DIABETES AND HTN PATIENTS</td>
+    </tr>
+    <tr>
+      <td>Cumulative no. of co-morbid DM+HTN patients in care</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>Newly diagnosed co-morbid with both DM and HTN cases</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>Revisits to clinic/Known co-morbid DM and HTN</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+
+    <tr class="section">
+      <td colspan="5">DIABETES TREATMENT AND FOLLOW UP</td>
+    </tr>
+    <tr>
+      <td>No. of patients on insulin</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>No. of patients on OGLAs</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>No. of patients on both (Insulin and OGLAs)</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>No. of patients on diet and exercise only (DM and HTN)</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>No. of patients done HbA1c</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>No. that met HbA1c target (&lt;7%)</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+
+    <tr class="section">
+      <td colspan="5">HYPERTENSION TREATMENT</td>
+    </tr>
+    <tr>
+      <td>No. of patients on antihypertensives</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>No. with high BP (&ge;140/90) at clinic visit</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+
+    <tr class="section">
+      <td colspan="5">NEW DIAGNOSIS OF COMPLICATIONS / COMORBIDITIES</td>
+    </tr>
+    <tr>
+      <td class="indent">Stroke</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">Ischemic heart disease</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">Heart failure</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>No. of patients with neuropathies (new diagnosis)</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+
+    <tr class="section">
+      <td colspan="5">DIABETIC FOOT</td>
+    </tr>
+    <tr>
+      <td>No. of patients screened for diabetic foot</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>No. of patients with diabetic foot (new diagnosis)</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>No. of Amputation due to diabetic foot</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+
+    <tr>
+      <td>No. with kidney complications (new diagnosis)</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>No. with diabetic retinopathy (new diagnosis)</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>No. screened for Tuberculosis</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>No. Screened Positive for Tuberculosis</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>No. enrolled with NHIF</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+
+    <tr class="section">
+      <td colspan="5">TOTAL NO. ADMITTED (FOR ONLY INPATIENTS)</td>
+    </tr>
+    <tr>
+      <td class="indent">No. admitted with DKA</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">No. admitted with Hypoglycemia</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">No. admitted with stroke</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">No. admitted with hypertension urgency/emergency</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+
+    <tr>
+      <td>Total deaths due to diabetes complications</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>Total deaths due to hypertension complications</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+
+    <tr>
+      <td colspan="2">Compiled by (Name):</td>
+      <td>Designation:</td>
+      <td colspan="2">Signature:</td>
+    </tr>
+  </table>
+</div> -->
+
+<div class="a4-wrapper">
+  <table class="moh740">
+    <!-- HEADER -->
+    <tr>
+      <td colspan="2" class="bold">Ministry of Health</td>
+      <td colspan="3" class="right bold">MOH 740 (Revised July 2022)</td>
+    </tr>
+    <tr>
+      <td colspan="5" class="center bold">
+        Diabetes and Hypertension Comprehensive Care: Monthly Summary Form
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5"></td>
+    </tr>
+
+    <!-- FACILITY DETAILS USING ROWSPAN -->
+    <tr>
+      <td colspan="2" rowspan="2">Name of the facility:</td>
+      <td rowspan="2">MFL code:</td>
+      <td rowspan="2">County:</td>
+      <td rowspan="2">Sub County:</td>
+    </tr>
+    <tr></tr>
+    <tr>
+      <td colspan="2">Month/Year:</td>
+      <td colspan="3"></td>
+    </tr>
+
+    <!-- COLUMN HEADERS -->
+    <tr class="hdr">
+      <td>Data Element</td>
+      <td>Male</td>
+      <td>Female</td>
+      <td colspan="2">Total</td>
+    </tr>
+
+    <!-- ===================== DIABETES ===================== -->
+    <tr class="section">
+      <td colspan="5">DIABETES</td>
+    </tr>
+
+    <tr>
+      <td>Cumulative no. of diabetes patients in care</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>No. of newly diagnosed diabetes cases</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>Revisits to clinic/Known DM</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+
+    <!-- TOTAL TYPE 1 WITH ROWSPAN -->
+    <tr class="bold">
+      <td rowspan="6">Total No. with Type 1</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">0–5 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">6–9 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">10–19 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">20–35 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">&gt;36 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+
+    <!-- TOTAL TYPE 2 WITH ROWSPAN -->
+    <tr class="bold">
+      <td rowspan="5">Total No. with Type 2</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">0–18 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">19–35 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">36–60 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">&gt;60 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+
+    <tr>
+      <td>No. diagnosed for Gestational Diabetes Mellitus</td>
+      <td colspan="4" class="center">N/A</td>
+    </tr>
+    <tr>
+      <td>No. of Diabetes secondary to other causes</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+
+    <!-- ===================== HYPERTENSION ===================== -->
+    <tr class="section">
+      <td colspan="5">HYPERTENSION</td>
+    </tr>
+
+    <tr>
+      <td>Cumulative no. of hypertension patients in care</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>No. of newly diagnosed hypertension cases</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>Re-visit to clinic/Known HTN</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+
+    <!-- NO. WITH HYPERTENSION WITH ROWSPAN -->
+    <tr class="bold">
+      <td rowspan="5">No. with hypertension</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">0–18 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">19–35 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">36–60 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td class="indent">&gt;60 years</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+
+    <!-- ===================== CO-MORBID ===================== -->
+    <tr class="section">
+      <td colspan="5">CO-MORBID WITH BOTH DIABETES AND HTN PATIENTS</td>
+    </tr>
+    <tr>
+      <td>Cumulative no. of co-morbid DM+HTN patients in care</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>Newly diagnosed co-morbid with both DM and HTN cases</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+    <tr>
+      <td>Revisits to clinic/Known co-morbid DM and HTN</td>
+      <td></td>
+      <td></td>
+      <td colspan="2"></td>
+    </tr>
+
+    <!-- SIGN OFF -->
+    <tr>
+      <td colspan="2">Compiled by (Name):</td>
+      <td>Designation:</td>
+      <td colspan="2">Signature:</td>
+    </tr>
+  </table>
+</div>
+
+<div
+  *ngIf="prepRegisterData.length == 0 && generated"
+  class="text-center rounded"
+>
+  <i class="alert alert-info text-center" style="width: 100%"
+    >No record found</i
+  >
+</div>

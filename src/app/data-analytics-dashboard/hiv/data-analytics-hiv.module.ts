@@ -60,6 +60,9 @@ import { Moh731FiltersComponent } from './report731/moh731-filters/moh731-filter
 import { Moh731ReportPatientListComponent } from './report731/moh731-report-patient-list/moh731-report-patient-list.component';
 import { Moh731ReportViewComponent } from './report731/moh731-report-view/moh731-report-view.component';
 import { HeiRegisterFiltersComponent } from './registers/hei-register/hei-register-filters/hei-register-filters.component';
+import { NcddailyRegisterComponent } from './registers/ncddaily-register/ncddaily-register.component';
+import { NcdpermanentRegisterComponent } from './registers/ncdpermanent-register/ncdpermanent-register.component';
+import { NcdmonthlyRegisterComponent } from './registers/ncdmonthly-register/ncdmonthly-register.component';
 
 @NgModule({
   imports: [
@@ -129,7 +132,10 @@ import { HeiRegisterFiltersComponent } from './registers/hei-register/hei-regist
     Moh731FiltersComponent,
     Moh731ReportPatientListComponent,
     Moh731ReportViewComponent,
-    HeiRegisterFiltersComponent
+    HeiRegisterFiltersComponent,
+    NcddailyRegisterComponent,
+    NcdpermanentRegisterComponent,
+    NcdmonthlyRegisterComponent
   ],
   providers: [
     DataAnalyticsDashboardService,

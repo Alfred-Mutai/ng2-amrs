@@ -1,0 +1,98 @@
+.moh222-container {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  background: #fff;
+  overflow: auto; /* entire container scrollable */
+  max-width: 100%;
+  max-height: 90vh;
+}
+
+/* ===== SCROLLABLE BODY ===== */
+.moh222-scrollable {
+  display: flex;
+  flex-direction: row;
+  overflow: auto;
+}
+
+/* Table + revision container */
+.moh222-main {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Revision top-right */
+.moh222-revision-top {
+  text-align: right;
+  font-style: italic;
+  font-size: 11px;
+  margin-bottom: 6px;
+}
+
+/* KEY on right */
+.moh222-key {
+  margin-left: 12px;
+  flex-shrink: 0;
+}
+
+.key-title {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.key-block {
+  margin-bottom: 6px;
+  padding-bottom: 0;
+}
+
+/* Table styling */
+.moh222-table-wrapper {
+  overflow: visible; /* handled by container */
+}
+
+.moh222-table {
+  border-collapse: collapse;
+  min-width: 1500px;
+}
+
+.moh222-table th,
+.moh222-table td {
+  border: 1px solid #000;
+  padding: 3px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.moh222-table .left {
+  text-align: left;
+  min-width: 160px;
+}
+
+/* Table titles */
+.table-title {
+  font-weight: bold;
+  font-size: 14px;
+  text-align: center;
+  border-bottom: 1px solid #000;
+}
+
+/* Rotated headers */
+.rotate {
+  height: 140px;
+  width: 35px;
+  padding: 0;
+}
+
+.rotate span {
+  display: inline-block;
+  transform: rotate(-90deg);
+  white-space: nowrap;
+}
+
+.column-letters th {
+  background-color: #f0f0f0;
+  font-weight: bold;
+  text-align: center;
+  border-bottom: 2px solid #000;
+  padding: 3px;
+}

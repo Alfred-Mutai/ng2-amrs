@@ -74,6 +74,24 @@ export class RegistersComponent implements OnInit {
         description: '',
         url: 'otz-register',
         icon: 'fa'
+      },
+      {
+        title: 'MOH-222: NCD Daily Activity Register',
+        description: 'Diabetes and Hypertension Comprehensive Care',
+        url: 'ncddaily-register',
+        icon: 'fa'
+      },
+      {
+        title: 'MOH-270: NCD Permanent Register',
+        description: 'Diabetes and Hypertension Comprehensive Care',
+        url: 'ncdpermanent-register',
+        icon: 'fa'
+      },
+      {
+        title: 'MOH-740: NCD Monthly Register',
+        description: 'Diabetes and Hypertension Comprehensive Care',
+        url: 'ncdmonthly-register',
+        icon: 'fa'
       }
     ];
   }

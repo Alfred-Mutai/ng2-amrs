@@ -1,0 +1,251 @@
+<h4 class="component-title text-success">
+  <span class="fa fa-table"></span>{{ reportName }}
+</h4>
+
+<div class="loader" *ngIf="isLoading">
+  <span><i class="fa fa-spinner fa-spin"></i>Loading...</span>
+</div>
+
+<p-tabView>
+  <div>
+    <p-tabPanel header="Monthly" leftIcon="fa-calendar-o">
+      <report-filters
+        [(startDate)]="startDate"
+        [(endDate)]="endDate"
+        [enabledControls]="enabledControls"
+        [reportName]="reportName"
+        (generateReport)="generateReport()"
+      >
+      </report-filters>
+    </p-tabPanel>
+  </div>
+</p-tabView>
+
+<div class="alert alert-danger fade in" *ngIf="showInfoMessage">
+  <a href="#" class="close" data-dismiss="alert">&times;</a>
+  <h4 *ngIf="!statusError">
+    <strong><span class="glyphicon glyphicon-warning-sign"></span> </strong> An
+    error occurred while trying to load the report. Please try again.
+  </h4>
+  <p>
+    <small>{{ errorMessage }}</small>
+  </p>
+</div>
+
+<div class="alert alert-danger fade in" *ngIf="showInfoMessage">
+  <a href="#" class="close" data-dismiss="alert">&times;</a>
+  <h4 *ngIf="!statusError">
+    <strong><span class="glyphicon glyphicon-warning-sign"></span> </strong> An
+    error occurred while trying to load the report. Please try again.
+  </h4>
+  <p>
+    <small>{{ errorMessage }}</small>
+  </p>
+</div>
+
+<!-- <div
+  class="btn-group pull-left"
+  *ngIf="prepRegisterData && prepRegisterData.length > 0"
+>
+  <button
+    class="btn btn-primary"
+    (click)="takeSnapshotAndExport()"
+    [disabled]="prepRegisterData.length == 0"
+  >
+    <i class="fa fa-download"> </i> Download Pdf
+  </button>
+</div> -->
+<br />
+<!-- ================= MOH 222 DAILY REGISTER ================= -->
+
+<div class="moh222-container">
+  <!-- ===== SCROLLABLE AREA ===== -->
+  <div class="moh222-scrollable">
+    <!-- ===== TABLE + REVISION ===== -->
+    <div class="moh222-main">
+      <!-- ===== REGISTER TABLE ===== -->
+      <div class="moh222-table-wrapper">
+        <table class="moh222-table">
+          <!-- ===== TITLE ROWS ===== -->
+          <thead>
+            <!-- ===== TITLE ROWS ===== -->
+            <tr>
+              <th colspan="17" class="table-title">MINISTRY OF HEALTH</th>
+            </tr>
+            <tr>
+              <th colspan="17" class="table-title">
+                DIABETES & HYPERTENSION COMPREHENSIVE CARE CENTER
+              </th>
+            </tr>
+            <tr>
+              <th colspan="17" class="table-title">
+                PERMANENT REGISTER – MOH 270
+              </th>
+            </tr>
+
+            <!-- ===== COLUMN LETTERS ===== -->
+            <tr class="column-letters">
+              <th>A</th>
+              <th>B</th>
+              <th>C</th>
+              <th>D</th>
+              <th>E</th>
+              <th>F</th>
+              <th>G</th>
+              <th>H</th>
+              <th>I</th>
+              <th>J</th>
+              <th>K</th>
+              <th>L</th>
+              <th>M</th>
+              <th>N</th>
+              <th>O</th>
+              <th>P</th>
+              <th>Q</th>
+            </tr>
+
+            <!-- ===== TABLE HEADERS ===== -->
+            <tr>
+              <th rowspan="2">Serial<br />No.</th>
+              <th rowspan="2">Date</th>
+              <th rowspan="2">Patient<br />No.</th>
+              <th rowspan="2">Patient Name</th>
+              <th rowspan="2" class="rotate"><span>D.O.B</span></th>
+
+              <th rowspan="2" class="rotate">
+                <span>Sex(M/F)</span>
+              </th>
+
+              <th rowspan="2">Telephone<br />No.</th>
+
+              <th rowspan="2">Sub-County</th>
+
+              <th rowspan="2">Village /<br />Estate</th>
+
+              <th rowspan="2">Landmark</th>
+
+              <th rowspan="2" class="rotate">
+                <span
+                  >Contact of the <br />treatment supporter <br />and
+                  relationship</span
+                >
+              </th>
+
+              <th rowspan="2" class="rotate">
+                <span>Diagnosis at<br />Enrolment (1)</span>
+              </th>
+
+              <th rowspan="2" class="rotate">
+                <span>Year of<br />Diagnosis</span>
+              </th>
+
+              <th rowspan="2" class="rotate">
+                <span
+                  >Complications /<br />Co-morbidities at<br />
+                  enrolment(2)</span
+                >
+              </th>
+
+              <th rowspan="2" class="rotate">
+                <span>Treatment at<br />Enrolment(3)</span>
+              </th>
+
+              <th rowspan="2" class="rotate">
+                <span>NHIF(Y/N)</span>
+              </th>
+
+              <th rowspan="2">Remarks</th>
+            </tr>
+
+            <tr></tr>
+          </thead>
+
+          <tbody>
+            <!-- ===== ACTUAL RECORDS ===== -->
+            <tr *ngFor="let r of prepRegisterData">
+              <td>{{ r.serialNo }}</td>
+              <td>{{ r.dateEnrolled }}</td>
+              <td>{{ r.patientNo }}</td>
+              <td class="left">{{ r.patientName }}</td>
+              <td>{{ r.dob }}</td>
+              <td>{{ r.sex }}</td>
+              <td>{{ r.telephone }}</td>
+              <td>{{ r.subCounty }}</td>
+              <td>{{ r.village }}</td>
+              <td>{{ r.landmark }}</td>
+              <td>{{ r.supporterContact }}</td>
+              <td>{{ r.diagnosisAtEnrollment }}</td>
+              <td>{{ r.yearOfDiagnosis }}</td>
+              <td>{{ r.complicationsAtEnrollment }}</td>
+              <td>{{ r.treatmentAtEnrollment }}</td>
+              <td>{{ r.nhif }}</td>
+              <td class="left">{{ r.remarks }}</td>
+            </tr>
+
+            <!-- ===== BLANK ROWS (ENSURE 18 ROWS) ===== -->
+            <tr *ngFor="let n of [].constructor(18 - prepRegisterData.length)">
+              <td *ngFor="let i of [].constructor(17)">&nbsp;</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== KEY ON RIGHT ===== -->
+    <div
+      class="moh222-key"
+      style="width: 350px; padding: 8px; font-size: 12px; line-height: 1.4"
+    >
+      <div class="key-title fw-bold"><u>KEY</u></div>
+
+      <div class="key-block">
+        <strong><u>1. Primary Diagnosis at enrolment</u></strong>
+        <div>a. Type 1 Diabetes Mellitus</div>
+        <div>b. Type 2 Diabetes Mellitus</div>
+        <div>c. Gestational Diabetes Mellitus</div>
+        <div>d. Hypertension</div>
+        <div>e. Preeclampsia</div>
+        <div>f. Other NCD (specify)</div>
+      </div>
+
+      <div class="key-block">
+        <strong><u>2. Complications/Comorbidities at enrolment</u></strong>
+        <div>a. Retinopathy</div>
+        <div>b. Peripheral Neuropathy</div>
+        <div>c. Nephropathy</div>
+        <div>d. Ischemic Heart Disease</div>
+        <div>e. Stroke</div>
+        <div>f. Heart Failure</div>
+        <div>g. Peripheral Vascular Disease</div>
+        <div>h. Diabetic Foot</div>
+        <div>i. Erectile Dysfunction</div>
+        <div>j. Gastropathy</div>
+        <div>k. Cataracts</div>
+        <div>l. Dental Complication</div>
+        <div>m. Dyslipidemia</div>
+        <div>n. Obesity</div>
+        <div>o. HIV</div>
+        <div>p. TB</div>
+      </div>
+
+      <div class="key-block">
+        <strong><u>3. Treatment at enrolment</u></strong>
+        <div>a. Diet & Physical Activity</div>
+        <div>b. Oral Glucose-Lowering Agents (OGLAs)</div>
+        <div>c. Insulin</div>
+        <div>d. Antihypertensives</div>
+        <div>e. Herbal</div>
+        <div>f. Other</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  *ngIf="prepRegisterData.length == 0 && generated"
+  class="text-center rounded"
+>
+  <i class="alert alert-info text-center" style="width: 100%"
+    >No record found</i
+  >
+</div>
