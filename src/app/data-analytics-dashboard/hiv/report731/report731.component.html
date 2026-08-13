@@ -28,10 +28,7 @@
   </p>
 </div>
 
-<div
-  class="alert alert-danger"
-  *ngIf="locationsUnresolved && !isLoading"
->
+<div class="alert alert-danger" *ngIf="locationsUnresolved && !isLoading">
   <strong>The selected locations could not be identified.</strong> The report
   names the facility each page covers, so it has not been produced rather than
   headed with an unnamed location. Re-select the location(s) above and click
@@ -48,9 +45,9 @@
 
 <div class="alert alert-warning" *ngIf="filtersChanged && !isLoading">
   <strong>The filters have changed.</strong> The figures below are still for
-  {{ generatedPeriod }}<span *ngIf="generatedWith?.isAggregated">
-    (aggregated)</span
-  >. Click <strong>Generate Report</strong> to apply the new selection.
+  {{ generatedPeriod
+  }}<span *ngIf="generatedWith?.isAggregated"> (aggregated)</span>. Click
+  <strong>Generate Report</strong> to apply the new selection.
 </div>
 
 <div
@@ -135,17 +132,15 @@
               </span>
               <span class="moh-form__meta-item">
                 Month
-                <span
-                  class="moh-form__blank moh-form__blank--filled"
-                  >{{ startDate | date: 'MMMM' }}</span
-                >
+                <span class="moh-form__blank moh-form__blank--filled">{{
+                  startDate | date: 'MMMM'
+                }}</span>
               </span>
               <span class="moh-form__meta-item">
                 year
-                <span
-                  class="moh-form__blank moh-form__blank--filled"
-                  >{{ startDate | date: 'yyyy' }}</span
-                >
+                <span class="moh-form__blank moh-form__blank--filled">{{
+                  startDate | date: 'yyyy'
+                }}</span>
               </span>
             </div>
 
@@ -169,9 +164,7 @@
                     let column of section.columns;
                     let columnIndex = index
                   "
-                  [style.flex-basis]="
-                    columnWidth(section, columnIndex) + '%'
-                  "
+                  [style.flex-basis]="columnWidth(section, columnIndex) + '%'"
                   [attr.data-col]="
                     's' + (sectionIndex + 1) + 'c' + (columnIndex + 1)
                   "
@@ -249,19 +242,27 @@
                      while the third column's rows run on beside it. -->
                 <div class="moh-form__footer" *ngIf="lastSection">
                   <span class="moh-form__footer-lead">Reviewed by:</span>
-                  <span class="moh-form__footer-item moh-form__footer-item--name">
+                  <span
+                    class="moh-form__footer-item moh-form__footer-item--name"
+                  >
                     <span class="moh-form__footer-label">Name</span>
                     <span class="moh-form__footer-rule"></span>
                   </span>
-                  <span class="moh-form__footer-item moh-form__footer-item--role">
+                  <span
+                    class="moh-form__footer-item moh-form__footer-item--role"
+                  >
                     <span class="moh-form__footer-label">Designation</span>
                     <span class="moh-form__footer-rule"></span>
                   </span>
-                  <span class="moh-form__footer-item moh-form__footer-item--sign">
+                  <span
+                    class="moh-form__footer-item moh-form__footer-item--sign"
+                  >
                     <span class="moh-form__footer-label">Signature</span>
                     <span class="moh-form__footer-rule"></span>
                   </span>
-                  <span class="moh-form__footer-item moh-form__footer-item--date">
+                  <span
+                    class="moh-form__footer-item moh-form__footer-item--date"
+                  >
                     <span class="moh-form__footer-label">Date</span>
                     <span class="moh-form__footer-rule"></span>
                   </span>
