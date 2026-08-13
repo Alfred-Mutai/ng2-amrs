@@ -15,6 +15,14 @@ import { DataAnalyticsDashboardService } from '../../services/data-analytics-das
 import * as html2canvas from 'html2canvas';
 import * as jsPDF from 'jspdf';
 
+import {
+  Moh731Block,
+  Moh731Cell,
+  Moh731Row,
+  MOH_731_SECTIONS,
+  buildMoh731SectionDefs
+} from './moh-731-form-definition';
+
 @Component({
   selector: 'app-report731',
   templateUrl: './report731.component.html',
@@ -28,8 +36,7 @@ export class Report731Component implements OnInit {
   public MOH731RegisterData: any = {};
   public columnDefs: any = [];
   public reportName = 'MOH 731 REPORT';
-  public currentView = 'monthly';
-  public currentViewBelow = 'pdf';
+  public currentView = 'report';
   public month: string;
   public year: number;
   public quarter: string;
@@ -46,10 +53,22 @@ export class Report731Component implements OnInit {
   public pinnedBottomRowData: any = [];
   public _month: string;
   public showLocationsControl = true;
-  public showIsAggregateControl = false;
+  public showIsAggregateControl = true;
+  public isAggregated = false;
   public isReleased = false;
   public generated = false;
-  @ViewChild('cntdarcontentToSnapshot') contentToSnapshot!: ElementRef;
+
+  /** Layout of the paper form, shared by the report view and the tabular view. */
+  public sections = MOH_731_SECTIONS;
+  /** Column groups of the tabular view. */
+  public sectionDefs: Array<any> = buildMoh731SectionDefs();
+  /** One row per location returned by the ETL, or one aggregated row. */
+  public rowData: Array<any> = [];
+  /** One rendering of the paper form per row of `rowData`. */
+  public formSheets: Array<any> = [];
+  public selectedLocationNames = '';
+
+  @ViewChild('reportContent') public contentToSnapshot!: ElementRef;
 
   public _locationUuids: any = [];
   public get locationUuids(): Array<string> {
@@ -89,6 +108,10 @@ export class Report731Component implements OnInit {
   public set endDate(v: Date) {
     this._endDate = v;
   }
+
+  /** Locations selected on the dashboard, kept in sync with the filter. */
+  private dashboardLocations: Array<any> = [];
+
   constructor(
     public router: Router,
     public route: ActivatedRoute,
@@ -106,37 +129,41 @@ export class Report731Component implements OnInit {
   }
 
   ngOnInit() {
-    // if (this.register.moh731Data) {
-    //   this.MOH731RegisterData = this.register.moh731Data;
-    //   this.calculateTotalSummary();
-    // }
+    this.dataAnalyticsDashboardService
+      .getSelectedLocations()
+      .subscribe((data) => {
+        this.dashboardLocations = (data && data.locations) || [];
+      });
   }
 
   public onMonthChange(value): any {
     this._month = Moment(value).format('YYYY-MM-DD');
   }
 
-  public generateReport(): any {
-    this.dataAnalyticsDashboardService
-      .getSelectedLocations()
-      .subscribe((data) => {
-        const locationValues = data.locations.map(
-          (location) => `${location.value}`
-        );
-        this.jointLocationUuids.push(...locationValues);
-      });
+  public onTabChanged(event: any) {
+    this.currentView = event && event.index === 1 ? 'tabular' : 'report';
+  }
 
+  public generateReport(): any {
     this.route.parent.parent.params.subscribe((params: any) => {
       this.storeParamsInUrl();
     });
-    this.MOH731RegisterData = [];
+    this.MOH731RegisterData = {};
+    this.rowData = [];
+    this.formSheets = [];
+    this.pinnedBottomRowData = [];
     this.getMOH731Register(this.params);
     this.generated = true;
   }
 
   public storeParamsInUrl() {
+    this.selectedLocationNames = this.getSelectedLocationNames();
+    this._month = Moment(this.startDate).format('YYYY-MM-DD');
+    this.showDraftReportAlert(this._month);
     this.params = {
-      locationUuids: this.getSelectedLocations(this.jointLocationUuids),
+      locationUuids: this.getSelectedLocations(),
+      isAggregated: this.isAggregated,
+      month: this._month,
       startDate: Moment(this.startDate).format('YYYY-MM-DD'),
       endDate: Moment(this.endDate).format('YYYY-MM-DD')
     };
@@ -155,54 +182,182 @@ export class Report731Component implements OnInit {
         this.isLoading = false;
       } else {
         this.showInfoMessage = false;
-        this.columnDefs = data.sectionDefinitions;
-        const flatData = Object.assign({}, ...data.result);
-        this.MOH731RegisterData = flatData;
-        // this.register.moh731Data = flatData;
+        // The ETL may ship its own section definitions. Fall back to the ones
+        // derived from the paper form when it does not.
+        if (
+          data.sectionDefinitions &&
+          data.sectionDefinitions.length > 0 &&
+          data.sectionDefinitions[0].indicators
+        ) {
+          this.columnDefs = data.sectionDefinitions;
+          this.sectionDefs = data.sectionDefinitions;
+        }
+        const result = data.result || [];
+        this.rowData = this.buildRowData(result);
+        this.formSheets = this.buildFormSheets(this.rowData);
+        this.MOH731RegisterData = this.formSheets.length
+          ? this.formSheets[0].data
+          : {};
         this.calculateTotalSummary();
         this.isLoading = false;
         this.showDraftReportAlert(this._month);
       }
     });
   }
-  public calculateTotalSummary() {
-    const totalsRow = [];
-    if (this.MOH731RegisterData.length > 0) {
-      const totalObj = {
-        location: 'Totals'
-      };
-      _.each(this.MOH731RegisterData, (row) => {
-        Object.keys(row).map((key) => {
-          if (Number.isInteger(row[key]) === true) {
-            if (totalObj[key]) {
-              totalObj[key] = row[key] + totalObj[key];
-            } else {
-              totalObj[key] = row[key];
-            }
-          } else {
-            if (Number.isNaN(totalObj[key])) {
-              totalObj[key] = 0;
-            }
-            if (totalObj[key] === null) {
-              totalObj[key] = 0;
-            }
-            totalObj[key] = 0 + totalObj[key];
-          }
-        });
-      });
-      totalObj.location = 'Totals';
-      totalsRow.push(totalObj);
-      this.pinnedBottomRowData = totalsRow;
+
+  /**
+   * The ETL returns either a row per location or a set of partial rows that
+   * together make up a single aggregate. Anything without its own location is
+   * merged into the one row the form view displays.
+   */
+  private buildRowData(result: Array<any>): Array<any> {
+    const perLocation = (result || []).filter(
+      (row: any) => row && (row.location || row.location_uuid)
+    );
+
+    if (perLocation.length > 0) {
+      return this.isAggregated
+        ? [this.aggregateRows(perLocation)]
+        : perLocation;
     }
+
+    if (!result || result.length === 0) {
+      return [];
+    }
+
+    return [
+      Object.assign({}, ...result, {
+        location: this.selectedLocationNames || 'All selected locations'
+      })
+    ];
   }
-  public onIndicatorSelected(title: string, indicator: string, gender: string) {
+
+  /** Sums every numeric indicator of the given rows into a single row. */
+  private aggregateRows(rows: Array<any>): any {
+    const aggregate: any = {
+      location: this.selectedLocationNames || 'All selected locations'
+    };
+
+    rows.forEach((row) => {
+      Object.keys(row).forEach((key) => {
+        const value = this.toNumber(row[key]);
+        if (value !== null) {
+          aggregate[key] = (aggregate[key] || 0) + value;
+        }
+      });
+    });
+
+    return aggregate;
+  }
+
+  /** Indicator values the ETL may ship as numbers or as numeric strings. */
+  private toNumber(value: any): number | null {
+    if (typeof value === 'number') {
+      return isNaN(value) ? null : value;
+    }
+    if (typeof value === 'string' && value.trim() !== '' && !isNaN(+value)) {
+      return +value;
+    }
+    return null;
+  }
+
+  /**
+   * One sheet of the paper form per row: a single combined sheet when the
+   * locations are aggregated, otherwise one sheet per location.
+   */
+  private buildFormSheets(rows: Array<any>): Array<any> {
+    return (rows || []).map((row: any) => ({
+      locationName: row.location || this.selectedLocationNames,
+      locationUuid: row.location_uuid || null,
+      data: row
+    }));
+  }
+
+  public calculateTotalSummary() {
+    if (this.rowData.length < 2) {
+      this.pinnedBottomRowData = [];
+      return;
+    }
+
+    const totalObj: any = { location: 'Totals' };
+    _.each(this.rowData, (row) => {
+      Object.keys(row).forEach((key) => {
+        const value = this.toNumber(row[key]);
+        if (value !== null) {
+          totalObj[key] = (totalObj[key] || 0) + value;
+        }
+      });
+    });
+
+    this.pinnedBottomRowData = [totalObj];
+  }
+
+  /** Width the printed form gives a column, as a percentage of the sheet. */
+  public columnWidth(section: any, columnIndex: number): number {
+    if (section.columnWidths && section.columnWidths[columnIndex]) {
+      return section.columnWidths[columnIndex];
+    }
+    return 100 / section.columns.length;
+  }
+
+  public cellValue(sheet: any, cell: Moh731Cell): any {
+    if (!cell || !cell.field || !sheet || !sheet.data) {
+      return '';
+    }
+    const value = sheet.data[cell.field];
+    return value === null || value === undefined ? '' : value;
+  }
+
+  public onCellSelected(
+    sheet: any,
+    block: Moh731Block,
+    row: Moh731Row,
+    cell: Moh731Cell
+  ) {
+    if (!cell || !cell.field) {
+      return;
+    }
+    const title = block.indicatorGroup || block.title || row.label;
+    this.onIndicatorSelected(
+      title,
+      cell.field,
+      cell.gender || '',
+      sheet ? sheet.locationUuid : null
+    );
+  }
+
+  public onGridIndicatorSelected(selected: any) {
+    if (!selected || !selected.indicator) {
+      return;
+    }
+    this.onIndicatorSelected(
+      selected.title,
+      selected.indicator,
+      selected.gender || '',
+      selected.location
+    );
+  }
+
+  public onIndicatorSelected(
+    title: string,
+    indicator: string,
+    gender: string,
+    locationUuid?: string
+  ) {
+    // An indicator read off one location's sheet drills into that location
+    // only. Aggregated numbers cover every location that was selected.
+    const locationUuids =
+      !this.isAggregated && locationUuid
+        ? locationUuid
+        : this.getSelectedLocations();
+
     this.router.navigate(['patient-list'], {
       relativeTo: this.route,
       queryParams: {
         indicators: indicator,
         indicatorHeader: title,
         month: this._month,
-        locationUuids: this.getSelectedLocations(this.jointLocationUuids),
+        locationUuids: locationUuids,
         indicatorGender: gender,
         startDate: this.startDate,
         endDate: this.endDate
@@ -224,31 +379,48 @@ export class Report731Component implements OnInit {
 
   public takeSnapshotAndExport() {
     const elementToSnapshot = this.contentToSnapshot.nativeElement;
+    // The form is wider than the page whenever a section needs the room, so
+    // snapshot its full scroll width rather than the slice that is on screen.
+    const width = Math.max(
+      elementToSnapshot.scrollWidth,
+      elementToSnapshot.offsetWidth
+    );
 
-    html2canvas(elementToSnapshot).then((canvas) => {
+    html2canvas(elementToSnapshot, {
+      width: width,
+      windowWidth: width,
+      scrollX: 0,
+      scrollY: 0
+    }).then((canvas) => {
       const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgWidth = 210; // A4 width in mm
+      const pdf = new jsPDF('l', 'mm', 'a4');
+      const imgWidth = 297; // A4 landscape width in mm
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
       pdf.save('MOH 731 Register.pdf');
     });
   }
-  private getSelectedLocations(locationUuids: any): string {
-    if (!locationUuids || locationUuids.length === 0) {
-      return '';
-    }
 
-    let selectedLocations = '';
+  /** Locations picked in the filter, falling back to the dashboard selection. */
+  private getSelectedLocationObjects(): Array<any> {
+    const selected =
+      this.jointLocationUuids && this.jointLocationUuids.length > 0
+        ? this.jointLocationUuids
+        : this.dashboardLocations;
+    return selected || [];
+  }
 
-    for (let i = 0; i < locationUuids.length; i++) {
-      if (i === 0) {
-        selectedLocations = selectedLocations + (locationUuids[0] as any).value;
-      } else {
-        selectedLocations =
-          selectedLocations + ',' + (locationUuids[i] as any).value;
-      }
-    }
-    return selectedLocations;
+  private getSelectedLocations(): string {
+    const uuids = this.getSelectedLocationObjects()
+      .map((location: any) => (location && location.value) || location)
+      .filter((uuid: any) => typeof uuid === 'string' && uuid.length > 0);
+    return _.uniq(uuids).join(',');
+  }
+
+  private getSelectedLocationNames(): string {
+    const names = this.getSelectedLocationObjects()
+      .map((location: any) => location && location.label)
+      .filter((label: any) => typeof label === 'string' && label.length > 0);
+    return _.uniq(names).join(', ');
   }
 }

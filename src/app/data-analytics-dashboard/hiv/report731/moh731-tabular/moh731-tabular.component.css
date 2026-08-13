@@ -1,0 +1,22 @@
+.moh-tabular__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.moh-tabular__search {
+  width: 260px;
+}
+
+.moh-tabular__hint {
+  color: #777;
+  font-size: 12px;
+  font-style: italic;
+}
+
+.moh-tabular__grid {
+  width: 100%;
+  height: 65vh;
+  min-height: 420px;
+}
