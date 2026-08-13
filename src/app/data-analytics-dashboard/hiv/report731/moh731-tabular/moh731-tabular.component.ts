@@ -18,6 +18,25 @@ import { AgGridNg2 } from 'ag-grid-angular';
   styleUrls: ['./moh731-tabular.component.css']
 })
 export class Moh731TabularViewComponent {
+  /**
+   * The sub sections the grid closes with a total, and what each total is
+   * called. Only the two ART sub sections carry one: they disaggregate a single
+   * figure across age and sex, so summing the row means something. Elsewhere a
+   * sub section's columns count different things and a total of them would not.
+   */
+  private static readonly TOTALS = [
+    {
+      match: /starting art/i,
+      header: 'Starting ART (Total)',
+      indicator: 'started_art'
+    },
+    {
+      match: /currently on art/i,
+      header: 'Currently on ART (Total)',
+      indicator: 'on_art'
+    }
+  ];
+
   public gridOptions: any = {
     columnDefs: [],
     enableSorting: true,
@@ -67,12 +86,16 @@ export class Moh731TabularViewComponent {
       }
     ];
 
-    (sectionsData || []).forEach((section) => {
+    (sectionsData || []).forEach((section, sectionIndex) => {
       const group: any = {
         headerName: section.sectionTitle,
         headerTooltip: section.sectionTitle,
         children: []
       };
+      // An indicator can sit under two boxes of the form (a male and a female
+      // box of a figure that is not split by sex), so the fields behind a total
+      // are counted once each.
+      const fields: string[] = [];
       (section.indicators || []).forEach((indicator) => {
         group.children.push({
           headerName: indicator.label,
@@ -82,8 +105,24 @@ export class Moh731TabularViewComponent {
           indicatorTitle: indicator.title || section.sectionTitle,
           indicatorGender: indicator.gender || ''
         });
+        if (fields.indexOf(indicator.indicator) === -1) {
+          fields.push(indicator.indicator);
+        }
       });
       if (group.children.length > 0) {
+        const total = Moh731TabularViewComponent.TOTALS.find((rule) =>
+          rule.match.test(section.sectionTitle || '')
+        );
+        if (total) {
+          group.children.push(
+            this.totalColumn(
+              total.header,
+              total.indicator,
+              sectionIndex,
+              fields
+            )
+          );
+        }
         defs.push(group);
       }
     });
@@ -93,6 +132,56 @@ export class Moh731TabularViewComponent {
       this.agGrid.api.setColumnDefs(defs);
     }
     this.autoSizeColumns();
+  }
+
+  /**
+   * Closes a sub section with the sum of its indicators. Where the sub section
+   * disaggregates one figure, the total is that figure undivided and has a
+   * patient list of its own, which `indicator` names; the displayed value still
+   * comes from summing the row so it agrees with the columns beside it.
+   */
+  private totalColumn(
+    header: string,
+    indicator: string,
+    sectionIndex: number,
+    fields: string[]
+  ) {
+    return {
+      headerName: header,
+      headerTooltip: header + ' – click to list these patients',
+      colId: 'total_' + sectionIndex,
+      field: indicator,
+      indicatorTitle: header,
+      indicatorGender: '',
+      minWidth: 150,
+      cellClass: 'moh-tabular__total-cell',
+      headerClass: 'moh-tabular__total-header',
+      valueGetter: (params: any) => {
+        if (!params.data) {
+          return null;
+        }
+        let total = 0;
+        let counted = 0;
+        fields.forEach((field) => {
+          const value = params.data[field];
+          const numeric =
+            typeof value === 'number'
+              ? value
+              : typeof value === 'string' &&
+                value.trim() !== '' &&
+                !isNaN(+value)
+              ? +value
+              : null;
+          if (numeric !== null) {
+            total += numeric;
+            counted++;
+          }
+        });
+        // A sub section none of whose indicators reported stays blank rather
+        // than showing a zero it did not measure.
+        return counted > 0 ? total : null;
+      }
+    };
   }
 
   /** Widens every column to fit its header and values, never clipping either. */

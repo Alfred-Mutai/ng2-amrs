@@ -20,3 +20,16 @@
   height: 65vh;
   min-height: 420px;
 }
+
+/* The column closing a sub section is a total rather than a reading. It keeps
+   the grid's own colours so it does not read as a different kind of cell, and
+   is set apart by weight and a rule instead. */
+.moh-tabular__grid ::ng-deep .moh-tabular__total-cell {
+  border-left: 1px solid #c4d3e0;
+  font-weight: bold;
+}
+
+.moh-tabular__grid ::ng-deep .moh-tabular__total-header {
+  border-left: 1px solid #c4d3e0;
+  font-weight: bold;
+}

@@ -1129,3 +1129,66 @@ export function buildMoh731SectionDefs(): Moh731SectionDef[] {
 
   return sectionDefs;
 }
+
+/**
+ * The patient list behind a box is asked for with a "dynamically created"
+ * indicator, the form the reporting framework already uses elsewhere:
+ *
+ *   dc__gender__M__age_range__1_to_4__started_art
+ *
+ * naming the disaggregation columns and the measure. The report's own field
+ * names are flat, so each is translated here into the cell of the form it
+ * stands for. A field with no entry is asked for by name alone.
+ */
+const PATIENT_LIST_AGE_BANDS: { [suffix: string]: string } = {
+  less_1: '0_to_1',
+  '1_4': '1_to_4',
+  '5_9': '5_to_9',
+  '10_14': '10_to_14',
+  '15_19': '15_to_19',
+  '20_24': '20_to_24',
+  '25_above': 'older_than_24'
+};
+
+const PATIENT_LIST_MEASURES: { [field: string]: string } = {
+  screened_tb_less_15: 'age_group_15__below_15__screened_for_tb',
+  screened_tb_greater_15: 'age_group_15__15_and_above__screened_for_tb',
+  start_tpt_less_15: 'age_group_15__below_15__started_tpt',
+  start_tpt_greater_15: 'age_group_15__15_and_above__started_tpt',
+  established: 'is_established',
+  not_established: 'is_not_established',
+  community: 'is_community_delivery',
+  facility: 'is_facility_delivery',
+  start_tb: 'started_tb_tx',
+  start_tb_known_positive: 'tb_known_positive',
+  start_tb_positive: 'tb_new_positive',
+  start_tb_on_art: 'tb_on_art_at_diagnosis',
+  start_tb_art_new: 'started_art_and_has_tb'
+};
+
+/** The indicator to ask the patient list for, given a form field. */
+export function patientListIndicator(field: string): string {
+  if (!field) {
+    return field;
+  }
+
+  // 3.1 and 3.2 are cut by age and sex, and their fields are named for the cell
+  // they sit in, so the cell can be read back off the name.
+  const banded = /^(art_new|on_art)_(.+)_(male|female)$/.exec(field);
+  if (banded) {
+    const band = PATIENT_LIST_AGE_BANDS[banded[2]];
+    if (band) {
+      const measure = banded[1] === 'art_new' ? 'started_art' : 'on_art';
+      const sex = banded[3] === 'male' ? 'M' : 'F';
+      return 'dc__gender__' + sex + '__age_range__' + band + '__' + measure;
+    }
+  }
+
+  const mapped = PATIENT_LIST_MEASURES[field];
+  if (mapped) {
+    return mapped.indexOf('__') === -1 ? mapped : 'dc__' + mapped;
+  }
+
+  // Nutrition and anything else is counted whole, so its own name is enough.
+  return field;
+}

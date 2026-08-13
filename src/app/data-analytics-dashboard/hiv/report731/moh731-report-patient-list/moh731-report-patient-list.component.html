@@ -10,6 +10,10 @@
 <h3>
   <b>{{ selectedIndicatorGender }} {{ selectedIndicator }}</b> patient list
 </h3>
+<p *ngIf="selectedLocationNames" class="text-muted" style="margin-top: -6px">
+  <span class="glyphicon glyphicon-map-marker"></span>
+  {{ selectedLocationNames }}
+</p>
 <hr />
 <patient-list
   [extraColumns]="extraColumns"
@@ -44,5 +48,7 @@
 </div>
 
 <div *ngIf="hasError">
-  <p class="alert-error alert">Error loading patient list.</p>
+  <p class="alert-error alert">
+    {{ errorMessage || 'Error loading patient list.' }}
+  </p>
 </div>

@@ -28,12 +28,34 @@
   </p>
 </div>
 
-<div class="alert alert-info" *ngIf="!generated && !isLoading">
+<div
+  class="alert alert-danger"
+  *ngIf="locationsUnresolved && !isLoading"
+>
+  <strong>The selected locations could not be identified.</strong> The report
+  names the facility each page covers, so it has not been produced rather than
+  headed with an unnamed location. Re-select the location(s) above and click
+  <strong>Generate Report</strong>.
+</div>
+
+<div
+  class="alert alert-info"
+  *ngIf="!generated && !isLoading && !locationsUnresolved"
+>
   Select the reporting period and location(s) above, then click
   <strong>Generate Report</strong>.
 </div>
 
-<div *ngIf="generated && !isLoading && !showInfoMessage">
+<div class="alert alert-warning" *ngIf="filtersChanged && !isLoading">
+  <strong>The filters have changed.</strong> The figures below are still for
+  {{ generatedPeriod }}<span *ngIf="generatedWith?.isAggregated">
+    (aggregated)</span
+  >. Click <strong>Generate Report</strong> to apply the new selection.
+</div>
+
+<div
+  *ngIf="generated && !isLoading && !showInfoMessage && !locationsUnresolved"
+>
   <p-tabView (onChange)="onTabChanged($event)">
     <p-tabPanel
       header="Report View"
@@ -43,9 +65,16 @@
       <div class="moh-toolbar">
         <button
           class="btn btn-primary btn-sm"
+          [disabled]="isExporting"
           (click)="takeSnapshotAndExport()"
         >
-          <i class="fa fa-download"></i> Download PDF
+          <i
+            class="fa"
+            [class.fa-download]="!isExporting"
+            [class.fa-spinner]="isExporting"
+            [class.fa-spin]="isExporting"
+          ></i>
+          {{ isExporting ? 'Preparing PDF...' : 'Download PDF' }}
         </button>
         <span class="moh-toolbar__hint">
           Click any box with a value to view the patient list behind it.
@@ -54,6 +83,12 @@
           {{ formSheets.length }} location sheets &ndash; tick
           <strong>Aggregate Locations</strong> above to combine them into one.
         </span>
+      </div>
+
+      <div class="alert alert-warning" *ngIf="sectionErrors.length > 0">
+        Section{{ sectionErrors.length > 1 ? 's' : '' }}
+        {{ sectionErrors.join(', ') }} could not be computed. The boxes below
+        are blank rather than zero for those indicators.
       </div>
 
       <div class="moh-sheets" #reportContent>

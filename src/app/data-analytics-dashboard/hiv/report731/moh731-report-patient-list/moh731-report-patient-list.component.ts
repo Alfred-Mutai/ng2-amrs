@@ -2,6 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { RegistersResourceService } from 'src/app/etl-api/registers-resource.service';
+import { Moh7312023ResourceService } from 'src/app/etl-api/moh-731-2023-resource.service';
+import { PatientListColumns } from 'src/app/shared/data-lists/patient-list/patient-list-columns.data';
+import { LocationResourceService } from 'src/app/openmrs-api/location-resource.service';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-moh731-report-patient-list',
@@ -9,6 +13,14 @@ import { RegistersResourceService } from 'src/app/etl-api/registers-resource.ser
   styleUrls: ['./moh731-report-patient-list.component.css']
 })
 export class Moh731ReportPatientListComponent implements OnInit {
+  /**
+   * Patients are asked for a page at a time rather than all at once. The page
+   * is large because the cost is in grouping the whole match set, not in the
+   * rows returned: a second page costs about what the first did, so fewer,
+   * bigger pages is the cheaper way round.
+   */
+  public static readonly PAGE_SIZE = 1000;
+
   public params: any;
   public patientData: any;
   public extraColumns: Array<any> = [];
@@ -18,6 +30,11 @@ export class Moh731ReportPatientListComponent implements OnInit {
   public selectedIndicatorGender: string;
   public hasLoadedAll = false;
   public hasError = false;
+  public errorMessage = '';
+  /** The locations the figure behind this list was counted over. */
+  public selectedLocationNames = '';
+  /** Where the next page starts. */
+  private nextStartIndex = 0;
   public selectedMonth: String;
   public busyIndicator: any = {
     busy: false,
@@ -28,7 +45,9 @@ export class Moh731ReportPatientListComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private _location: Location,
-    public register: RegistersResourceService
+    public register: RegistersResourceService,
+    private moh7312023: Moh7312023ResourceService,
+    private locationResourceService: LocationResourceService
   ) {}
 
   ngOnInit() {
@@ -38,6 +57,7 @@ export class Moh731ReportPatientListComponent implements OnInit {
           this.params = params;
           this.selectedIndicator = params.indicatorHeader;
           this.selectedIndicatorGender = params.indicatorGender;
+          this.resolveLocationNames(params.locationUuids);
           this.getPatientList(params, params.indicators);
         }
       },
@@ -48,27 +68,114 @@ export class Moh731ReportPatientListComponent implements OnInit {
     this.addExtraColumns();
   }
 
+  /**
+   * Names the locations the list covers. The url carries only uuids, and a list
+   * read on its own says nothing about which facilities it came from. Named the
+   * way the report names them, which is the way they are listed in the picker.
+   */
+  private resolveLocationNames(locationUuids: string) {
+    const uuids = String(locationUuids || '')
+      .split(',')
+      .filter((uuid: string) => uuid.length > 0);
+    if (uuids.length === 0) {
+      return;
+    }
+
+    this.locationResourceService
+      .getLocations()
+      .pipe(take(1))
+      .subscribe(
+        (locations: any[]) => {
+          const names = new Map<string, string>();
+          (locations || []).forEach((location: any) => {
+            names.set(location.uuid, location.display || location.name);
+          });
+          this.selectedLocationNames = uuids
+            .map((uuid: string) => names.get(uuid))
+            .filter((name: string) => !!name)
+            .join(', ');
+        },
+        () => {
+          // The list is still readable without them.
+        }
+      );
+  }
+
+  /**
+   * Loads the first page and stops. Each page is a heavy query - the patient
+   * columns come from a dozen joined tables - so fetching the whole list up
+   * front makes the user wait on records they may never scroll to. The rest is
+   * fetched only when asked for, by Load More.
+   */
   private getPatientList(params: any, indicator: string) {
+    this.patientData = [];
+    this.nextStartIndex = 0;
+    this.hasLoadedAll = false;
+    this.hasError = false;
+    this.isLoading = true;
+    this.loadPage(params, indicator, 0);
+  }
+
+  private loadPage(params: any, indicator: string, startIndex: number) {
+    const size = Moh731ReportPatientListComponent.PAGE_SIZE;
+    const loaded = this.patientData ? this.patientData.length : 0;
     this.busyIndicator = {
       busy: true,
-      message: 'Loading Patient List...please wait'
+      message: loaded
+        ? 'Loading the next ' + size + ' after ' + loaded + '...'
+        : 'Loading Patient List...please wait'
     };
-    console.log('PARAMS: ' + JSON.stringify(params));
-    this.register.getMoh731PatientList(params, indicator).subscribe((data) => {
-      this.isLoading = false;
-      this.patientData = data.results.results;
-      if (data.results.results.length < 300) {
-        this.hasLoadedAll = true;
-      }
-      this.busyIndicator = {
-        busy: false,
-        message: ''
-      };
-    });
+
+    this.moh7312023
+      .getPatientList(params, indicator, startIndex, size)
+      .subscribe(
+        (data: any) => {
+          const page =
+            (data && data.results && data.results.results) ||
+            (data && data.result) ||
+            [];
+
+          this.patientData = (this.patientData || []).concat(page);
+          this.isLoading = false;
+
+          if (data && data.error) {
+            this.hasError = true;
+            this.errorMessage =
+              'Could not load the patient list for "' +
+              indicator +
+              '": ' +
+              (data.message || data.error);
+            console.error('MOH 731 patient list failed', indicator, data);
+            this.stopLoading();
+            return;
+          }
+
+          // A page shorter than the one asked for is the last one.
+          this.nextStartIndex = startIndex + page.length;
+          if (page.length < size) {
+            this.hasLoadedAll = true;
+          }
+          this.stopLoading();
+        },
+        (err: any) => {
+          this.hasError = true;
+          this.errorMessage =
+            'Could not load the patient list for "' + indicator + '".';
+          console.error('MOH 731 patient list failed', indicator, err);
+          this.isLoading = false;
+          this.stopLoading();
+        }
+      );
+  }
+
+  private stopLoading() {
+    this.busyIndicator = { busy: false, message: '' };
   }
 
   public addExtraColumns() {
     const extraColumns = {
+      ccc_number: 'CCC Number',
+      upi_number: 'UPI Number',
       weight: 'Weight',
       height: 'Height',
       stage: 'WHO Stage',
@@ -96,17 +203,25 @@ export class Moh731ReportPatientListComponent implements OnInit {
       discordant_status: 'Discordant Status',
       tb_screening_date: 'TB Screening Date',
       tb_screening_result: 'TB Screening Result',
-      covid_19_vaccination_status: 'Covid-19 Assessment Status',
       cervical_screening_date: 'Cervical Screening Date',
       cervical_screening_method: 'Cervical Screening Method',
       cervical_screening_result: 'Cervical Screening Result',
       sms_consent_provided: 'SMS Consent Provided',
       sms_receive_time: 'SMS Time',
       nearest_center: 'Nearest Center',
-      patient_categorization: 'DSD Model'
+      patient_categorization: 'Patient Categorization',
+      service_delivery_model: 'Service Model',
+      dsd_model: 'DSD Model',
+      cd4_1: 'CD4',
+      cd4_lateral_flow: 'CD4 Lateral Flow',
+      cd4_date: 'CD4 Date'
     };
 
-    const status = this.selectedIndicatorGender.split(' - ')[0];
+    // An indicator that is not split by sex carries no gender, and the router
+    // drops the empty parameter, so this arrives undefined. Reading it without
+    // guarding threw before any column was added, leaving the list with only
+    // the grid's own columns and every added one blank.
+    const status = (this.selectedIndicatorGender || '').split(' - ')[0];
     if (status === 'Died') {
       Object.assign(extraColumns, {
         death_date: 'Death Date',
@@ -117,8 +232,17 @@ export class Moh731ReportPatientListComponent implements OnInit {
         transfer_out_date_v1: 'Transfer out date'
       });
     }
+    // The grid appends these to its own standard columns, so anything it
+    // already shows would appear twice. Its version is kept: it carries the
+    // widths and cell renderers this list would otherwise lose.
+    const alreadyShown = new Set(
+      PatientListColumns.columns()
+        .map((column: any) => column.field)
+        .filter((field: any) => !!field)
+    );
+
     for (const indicator in extraColumns) {
-      if (indicator) {
+      if (indicator && !alreadyShown.has(indicator)) {
         this.extraColumns.push({
           headerName: extraColumns[indicator],
           field: indicator
@@ -148,9 +272,13 @@ export class Moh731ReportPatientListComponent implements OnInit {
     );
   }
 
+  /** Fetches the next page and adds it to what is already on screen. */
   public loadMorePatients() {
+    if (this.hasLoadedAll || this.busyIndicator.busy) {
+      return;
+    }
     this.isLoading = true;
-    this.getPatientList(this.params, this.params.indicators);
+    this.loadPage(this.params, this.params.indicators, this.nextStartIndex);
   }
 
   public goBack() {
