@@ -142,7 +142,8 @@ export class RegistersResourceService {
       .set('locationUuids', params.locationUuids)
       .set('month', params.month)
       .set('startDate', params.startDate)
-      .set('endDate', params.endDate);
+      .set('endDate', params.endDate)
+      .set('isAggregated', params.isAggregated ? 'true' : 'false');
     const url = this.getUrl('moh-731');
     const request = this.http
       .get<any>(url, {

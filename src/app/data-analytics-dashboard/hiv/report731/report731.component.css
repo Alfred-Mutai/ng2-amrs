@@ -1,69 +1,786 @@
-.table {
-  border: 2px solid #000;
-}
-
-.border {
-  background-color: #f2f2f2;
-  border-bottom: 2px solid #000;
-  width: 100%;
-}
-.border2 {
-  background-color: #f2f2f2;
-  border-top: 2px solid #000;
-  border-bottom: 2px solid #000;
-  width: 100%;
-}
-
-.border3 {
-  border-top: 2px solid #000;
-  border-right: 2px dotted #000;
-  width: 78.5%;
-}
-
-.flex-column {
-  display: flex;
-  flex-direction: column;
-  margin: 1%;
-}
-
-.flex-row {
-  display: flex;
-  justify-content: space-between;
-}
-.rectangle {
-  width: 50px;
-  height: 20px;
-  border: 2px solid #000;
-  display: inline-block;
-  margin-left: 5px;
-  text-align: center;
-}
-.text-box {
+.moh-toolbar {
   display: flex;
   align-items: center;
-  gap: 8px;
-}
-.text-box2 {
-  margin-left: 10px;
-}
-.space-after {
-  padding-right: 6vw;
-}
-.border-right {
-  border-right: 2px dotted #000;
-  padding-right: 4vw;
-}
-.border-left {
-  border-left: 2px dotted #000;
-  padding-left: 1vw;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 
-.review-section {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  column-gap: 20px;
+.moh-toolbar__hint {
+  color: #777;
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* ---------- The sheet ----------
+   A replica of the MOH 731 (Ver. July 2023) form: one portrait page per
+   location, laid out to the proportions of the printed original. */
+
+.moh-sheets {
+  overflow-x: auto;
+}
+
+.moh-page {
+  background: #fff;
+  color: #000;
+  /* Pinned so the sheet keeps the printed proportions whatever the app theme
+     sets on the page around it. */
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  line-height: 1.25;
+  margin: 0 auto;
+  padding: 6px 8px 10px;
+  width: 1000px;
+}
+
+.moh-page--stacked {
+  margin-top: 18px;
+  page-break-before: always;
+}
+
+.moh-page__topbar {
+  display: flex;
+  font-size: 11px;
+  justify-content: space-between;
+  padding: 0 2px 6px;
+}
+
+/* The printed form is a single box: the title panel, the County/Sub County
+   line and every section bar all run edge to edge inside it. */
+.moh-form {
+  border: 1px solid #000;
+  padding: 0;
+}
+
+.moh-form__title {
+  align-items: center;
+  border-bottom: 1px solid #000;
+  display: flex;
+  justify-content: space-between;
+  padding: 8.5px 8px;
+  position: relative;
+}
+
+/* Type sizes measured off the printed form: the body text and indicator codes
+   are set at 9px on this sheet, and every heading a step or two above it. */
+.moh-form__title-text {
+  flex: 1;
+  font-size: 14.5px;
   text-align: center;
-  font-size: 14px;
-  margin-top: 10px;
+}
+
+/* The printed form rules this box with a fine dashed line, finer than a CSS
+   dashed border draws, so the four edges are painted to the measured pattern. */
+.moh-form__code {
+  background-image: repeating-linear-gradient(
+      to right,
+      #000 0,
+      #000 1.6px,
+      transparent 1.6px,
+      transparent 3.5px
+    ),
+    repeating-linear-gradient(
+      to right,
+      #000 0,
+      #000 1.6px,
+      transparent 1.6px,
+      transparent 3.5px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      #000 0,
+      #000 1.6px,
+      transparent 1.6px,
+      transparent 3.5px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      #000 0,
+      #000 1.6px,
+      transparent 1.6px,
+      transparent 3.5px
+    );
+  background-position: 0 0, 0 100%, 0 0, 100% 0;
+  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+  background-size: 100% 1px, 100% 1px, 1px 100%, 1px 100%;
+  font-size: 10px;
   font-weight: bold;
+  padding: 1.85px 23px 1.85px 27px;
+  /* Taken out of the flow so the form's title stays centred on the sheet
+     rather than on the space left beside this box. */
+  position: absolute;
+  right: 1.8px;
+  top: 15.2px;
+  white-space: nowrap;
+}
+
+.moh-form__meta {
+  border-bottom: 1px solid #000;
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  padding: 5px 4px 14px;
+  white-space: nowrap;
+}
+
+/* Ruled off the foot of the row rather than the text's baseline, so a filled
+   entry sits on the same line as an empty one. */
+.moh-form__meta-item {
+  align-items: flex-end;
+  display: inline-flex;
+  gap: 2px;
+}
+
+.moh-form__blank {
+  border-bottom: 1px solid #000;
+  display: inline-block;
+  height: 11px;
+  line-height: 11px;
+  min-width: 110px;
+}
+
+.moh-form__blank--filled {
+  font-weight: bold;
+  padding: 0 4px;
+  text-align: center;
+}
+
+/* Each entry is ruled to the length the printed form gives it. */
+.moh-form__meta-item:nth-child(1) .moh-form__blank {
+  min-width: 135px;
+}
+
+.moh-form__meta-item:nth-child(2) .moh-form__blank {
+  min-width: 116px;
+}
+
+.moh-form__meta-item:nth-child(3) .moh-form__blank {
+  min-width: 135px;
+}
+
+.moh-form__meta-item:nth-child(4) .moh-form__blank {
+  min-width: 62px;
+}
+
+.moh-form__meta-item:nth-child(5) .moh-form__blank {
+  min-width: 33px;
+}
+
+.moh-form__meta-item:nth-child(6) .moh-form__blank {
+  min-width: 37px;
+}
+
+/* ---------- Sections ---------- */
+
+/* Each section is closed by the next section's bar, and the last by the form's
+   own border, so no section draws a rule of its own: the printed form separates
+   them with a single line, not two stacked ones. */
+
+/* The printed form breaks between the header box and the first section bar,
+   then runs the sections straight into one another. Without the break the two
+   rules would sit against each other and read as one thick line. */
+.moh-form__meta + .moh-section {
+  margin-top: 3px;
+}
+
+.moh-section__title {
+  background: #f2f2f2;
+  border-bottom: 1px solid #000;
+  border-top: 1px solid #000;
+  font-size: 10.75px;
+  font-weight: bold;
+  padding: 1px 5px;
+}
+
+.moh-section__body {
+  display: flex;
+  position: relative;
+}
+
+/* The sign off sits under the first two columns of the last section while the
+   third runs on to the form's base, so those two carry the room it needs
+   rather than the section as a whole. */
+[data-col='s3c1'],
+[data-col='s3c2'] {
+  padding-bottom: 50px;
+}
+
+/* Columns hold the width the form definition measures off the paper: they
+   neither grow into a neighbour's space nor shrink out of their own. */
+.moh-column {
+  box-sizing: border-box;
+  flex-grow: 0;
+  flex-shrink: 0;
+  min-width: 0;
+  padding: 6px 6px 8px 14px;
+}
+
+/* Only section 3 is ruled between its columns on the paper form. The rule is
+   drawn rather than bordered so it can stop short: the sign-off runs under the
+   first two columns, and the printed form breaks the rule between them where it
+   begins, while the rule beside the third column carries on to the base. */
+.moh-section__body--ruled .moh-column {
+  position: relative;
+}
+
+/* Drawn on the left of every column after the first, rather than the right of
+   every column but the last: the sign-off is itself a child of the section, so
+   the last column is not the last child and would take a rule of its own,
+   doubling up against the form's border. */
+.moh-section__body--ruled .moh-column + .moh-column::before {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    #666 0,
+    #666 2.05px,
+    transparent 2.05px,
+    transparent 2.7px
+  );
+  bottom: 0;
+  content: '';
+  left: -1px;
+  position: absolute;
+  top: 0;
+  width: 1px;
+}
+
+.moh-section__body--ruled .moh-column + .moh-column[data-col='s3c2']::before {
+  bottom: 42px;
+}
+
+/* ---------- Blocks ---------- */
+
+/* The printed form separates its blocks with a dotted rule of a set length that
+   starts just left of the text, not one drawn across the whole column. The
+   block overhangs its column by that much so the rule can start where it does. */
+.moh-block + .moh-block {
+  background-image: repeating-linear-gradient(
+    to right,
+    #666 0,
+    #666 1.5px,
+    transparent 1.5px,
+    transparent 4px
+  );
+  background-repeat: no-repeat;
+  background-size: 380px 1px;
+  margin-left: -2px;
+  margin-top: 4.6px;
+  padding-left: 2px;
+  padding-top: 6px;
+}
+
+/* A block that opens a numbered section is ruled off by its own shaded bar, so
+   it does not also take the dotted rule that separates ordinary blocks. */
+.moh-block--section + .moh-block,
+.moh-block + .moh-block--section {
+  background-image: none;
+}
+
+.moh-block__section {
+  background: #f2f2f2;
+  border-bottom: 1px solid #000;
+  border-top: 1px solid #000;
+  font-size: 10.5px;
+  font-weight: bold;
+  margin: 0 -6px 1.5px -14px;
+  padding: 1.05px 5px;
+}
+
+/* The title sits low in the space above its rows, as the printed form sets it;
+   the padding and margin trade off so the rows below do not move. */
+.moh-block__title {
+  font-size: 10px;
+  font-weight: bold;
+  margin-bottom: 1px;
+  padding-top: 4px;
+}
+
+.moh-block__heading {
+  font-weight: bold;
+  margin: 5px 0 1px;
+}
+
+/* ---------- Rows and cells ---------- */
+
+.moh-row {
+  align-items: center;
+  display: flex;
+  gap: 7px;
+  /* A row is exactly one box tall, so consecutive boxes stack into a single
+     column of cells no matter which font the app is using. */
+  line-height: 17px;
+}
+
+/* The printed form gives labels a fixed gutter, whatever the column width:
+   every box in a block lines up, and a long label wraps onto a second line. */
+/* A fixed gutter where the column has room for one, giving way when it does
+   not — the printed form narrows it in its tighter columns too. */
+.moh-row__label {
+  box-sizing: border-box;
+  flex: 0 3 162px;
+  min-width: 0;
+}
+
+/* The printed form gives its column captions a row of their own, sitting them
+   just above the boxes they label. */
+.moh-row--headers {
+  align-items: flex-end;
+  line-height: 1.15;
+  min-height: 17px;
+}
+
+/* Soaks up the space left of the column edge, as the printed form does. */
+.moh-row::after {
+  content: '';
+  flex: 1 1 0;
+}
+
+/* The paper form groups its rows: a gap breaks the stack of boxes, and a
+   rule runs across the label and box columns only. */
+.moh-row--gap {
+  margin-top: 12.5px;
+}
+
+.moh-row--divider {
+  background-image: linear-gradient(#666, #666);
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  background-size: 284px 1px;
+  margin-top: 11px;
+  padding-top: 6px;
+}
+
+.moh-row--gap .moh-cell__box,
+.moh-row--divider .moh-cell__box {
+  margin-top: 0;
+}
+
+.moh-row--headers {
+  font-weight: bold;
+  padding-bottom: 1px;
+}
+
+.moh-row--headers .moh-cell {
+  font-size: 8.5px;
+  line-height: 1.15;
+}
+
+.moh-cell {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 1 auto;
+  gap: 10px;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+/* Codes share a right aligned gutter of a set width, so every box of a column
+   sits on the same grid even where the codes differ in length: a code longer
+   than its gutter runs left into the label's space, as the printed form does. */
+.moh-cell__code {
+  font-size: 9px;
+  min-width: 40px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+[data-col='s3c1'] .moh-cell__code {
+  min-width: 0;
+  width: 52px;
+}
+
+[data-col='s3c2'] .moh-cell__code,
+[data-col='s3c3'] .moh-cell__code {
+  min-width: 0;
+  width: 40.5px;
+}
+
+/* Column heading, sitting over the left edge of the box it belongs to. The
+   printed captions run wider than their box, so the heading takes only the
+   box's width in the row while its text wraps at the width the paper wraps at. */
+.moh-cell__header {
+  display: inline-block;
+  white-space: normal;
+  width: 90px;
+}
+
+/* Boxes keep the size the printed form gives them: a column that runs short of
+   room scrolls the sheet rather than squeezing its boxes out of shape. */
+.moh-cell__box {
+  background: #fff;
+  border: 1px solid #000;
+  box-sizing: border-box;
+  display: inline-block;
+  font-weight: bold;
+  flex-shrink: 0;
+  height: 17px;
+  line-height: 15px;
+  text-align: center;
+  width: 62px;
+}
+
+/* Consecutive boxes are set a hair apart rather than sharing a rule, so a
+   stacked run reads as separate cells on screen. */
+.moh-row + .moh-row .moh-cell__box {
+  margin-top: 3px;
+}
+
+/* Holds a column open where the paper form has no box on that side. */
+.moh-cell__box--hidden {
+  visibility: hidden;
+}
+
+/* Indicators the ETL does not compute stay empty and are shaded. */
+.moh-cell__box:not(.moh-cell__box--linked) {
+  background: #f4f4f4;
+}
+
+.moh-cell__box--linked {
+  cursor: pointer;
+}
+
+.moh-cell__box--linked:hover {
+  background: #ddeeff;
+  border-color: #1b76bc;
+}
+
+/* ---------- Footer ----------
+   Measured off the printed form: the sign off is ruled across the first two
+   columns of the last section, stopping at the rule that divides off the third,
+   and its four underlines are of different lengths at a constant spacing. */
+
+.moh-form__footer {
+  border-top: 1px solid #000;
+  bottom: 0;
+  box-sizing: border-box;
+  display: flex;
+  gap: 55.5px;
+  left: 0;
+  padding: 4px 0 10px 37px;
+  position: absolute;
+  /* Section 3's first two columns, so the rule meets the divider beside it. */
+  width: 72.19%;
+}
+
+.moh-form__footer-lead {
+  margin-right: -36px;
+}
+
+.moh-form__footer-item {
+  display: inline-flex;
+  flex-direction: column;
+}
+
+.moh-form__footer-item--name {
+  width: 166px;
+}
+
+.moh-form__footer-item--role {
+  width: 111px;
+}
+
+.moh-form__footer-item--sign,
+.moh-form__footer-item--date {
+  width: 55px;
+}
+
+.moh-form__footer-label {
+  font-weight: normal;
+  padding-left: 3px;
+}
+
+/* Only the name is centred on its rule; the rest sit at its left end. */
+.moh-form__footer-item--name .moh-form__footer-label {
+  align-self: center;
+  padding-left: 0;
+}
+
+.moh-form__footer-rule {
+  border-bottom: 1px solid #000;
+  margin-top: 14px;
+}
+
+/* ---------- Measured geometry ----------
+   Label gutters and box widths taken off the printed form, expressed against
+   this sheet's 1000px width. The paper is not uniform: each column has its own
+   gutter and each section its own box size. */
+
+[data-col='s1c1'] {
+  padding-left: 16.3px;
+}
+
+[data-col='s1c1'] .moh-block + .moh-block {
+  background-size: 407px 1px;
+}
+
+[data-col='s1c1'] .moh-row__label {
+  flex-basis: 158.7px;
+}
+
+[data-col='s1c1'] .moh-cell + .moh-cell {
+  margin-left: 0;
+}
+
+[data-col='s1c2'] {
+  padding-left: 13.2px;
+}
+
+[data-col='s1c2'] .moh-row__label {
+  flex-basis: 154.8px;
+}
+
+[data-col='s1c2'] .moh-cell + .moh-cell {
+  margin-left: 0;
+}
+
+[data-col='s2c1'] {
+  padding-left: 28.6px;
+}
+
+[data-col='s2c1'] .moh-block + .moh-block {
+  background-size: 357.8px 1px;
+}
+
+[data-col='s2c1'] .moh-row__label {
+  flex-basis: 144.4px;
+}
+
+[data-col='s2c2'] .moh-row__label {
+  flex-basis: 140px;
+}
+
+[data-col='s2c2'] .moh-block + .moh-block {
+  background-size: 314.4px 1px;
+}
+
+[data-col='s3c1'] {
+  padding-left: 15.6px;
+}
+
+[data-col='s3c1'] .moh-block + .moh-block {
+  background-size: 376.5px 1px;
+}
+
+[data-col='s3c1'] .moh-row__label {
+  flex-basis: 118.4px;
+}
+
+/* 3.1 and 3.2 set their male and female boxes further apart. */
+[data-col='s3c1'] .moh-cell + .moh-cell {
+  margin-left: 18px;
+}
+
+[data-col='s3c2'] {
+  padding-left: 5px;
+}
+
+[data-col='s3c2'] .moh-row__label {
+  flex-basis: 140px;
+}
+
+/* Fixed rather than shrinkable: this column has just enough room for its
+   gutter, and a shrinking label would drift the boxes off the printed grid. */
+[data-col='s3c3'] .moh-row__label {
+  flex: 0 0 147.6px;
+}
+
+/* Section 5 breaks its rows a full printed row apart. */
+[data-col='s3c3'] .moh-row--gap {
+  margin-top: 18.1px;
+}
+
+[data-col^='s1'] .moh-cell__box {
+  width: 63px;
+}
+
+[data-col^='s2'] .moh-cell__box {
+  width: 49px;
+}
+
+[data-col^='s3'] .moh-cell__box {
+  width: 55px;
+}
+
+/* Row pitch, measured off the printed form. It is not one grid: sections 1 and
+   2 are set on roughly a 16.8px row, section 3 on a taller one, and the column
+   carrying sections 4 and 5 taller still. A stacked run of boxes shares its
+   rules, so the row pitch and the box height are the same measurement. */
+
+[data-col^='s1'] .moh-row {
+  line-height: 16.8px;
+}
+
+[data-col^='s1'] .moh-cell__box {
+  height: 16.8px;
+  line-height: 14.8px;
+}
+
+[data-col^='s2'] .moh-row {
+  line-height: 16.75px;
+}
+
+[data-col^='s2'] .moh-cell__box {
+  height: 16.75px;
+  line-height: 14.75px;
+}
+
+[data-col='s3c1'] .moh-row,
+[data-col='s3c2'] .moh-row {
+  line-height: 17.87px;
+}
+
+[data-col='s3c1'] .moh-cell__box,
+[data-col='s3c2'] .moh-cell__box {
+  height: 17.87px;
+  line-height: 15.87px;
+}
+
+[data-col='s3c3'] .moh-row {
+  line-height: 18.35px;
+}
+
+[data-col='s3c3'] .moh-cell__box {
+  height: 18.35px;
+  line-height: 16.35px;
+}
+
+/* A heading takes only its box's width in the row, so the boxes below it stay
+   on the printed grid while the caption itself runs on as wide as it needs. */
+[data-col^='s1'] .moh-cell__header {
+  margin-right: -27px;
+}
+
+[data-col^='s2'] .moh-cell__header {
+  margin-right: -41px;
+}
+
+[data-col^='s3'] .moh-cell__header {
+  margin-right: -35px;
+}
+
+/* Sections 4 and 5 share the third column and print a narrower box. */
+[data-col='s3c3'] .moh-cell__box {
+  width: 48px;
+}
+
+/* The nutrition column runs its boxes right up to the rule beside it. */
+[data-col='s3c2'] {
+  padding-right: 0;
+}
+
+/* Sections 2 and 3 stand their first row further off the section bar than
+   section 1 does, and space their blocks further apart. */
+[data-col^='s1'] {
+  padding-bottom: 15.5px;
+  padding-top: 2.9px;
+}
+
+/* 1.2 breaks its rows further apart than 1.1 does, and sets 1.4 tighter. */
+[data-col='s1c2'] .moh-row--gap {
+  margin-top: 13.7px;
+}
+
+[data-col='s1c2'] .moh-block + .moh-block {
+  background-size: 407.5px 1px;
+  margin-top: 3.5px;
+}
+
+[data-col='s1c1'] .moh-block + .moh-block:last-child {
+  margin-top: 6.7px;
+}
+
+[data-col^='s2'] {
+  padding-bottom: 14.3px;
+  padding-top: 1.4px;
+}
+
+[data-col^='s3'] {
+  padding-top: 1.4px;
+}
+
+[data-col='s3c2'] {
+  padding-top: 0;
+}
+
+[data-col='s3c2'] .moh-block:first-child {
+  margin-top: -3px;
+}
+
+[data-col='s3c3'] {
+  padding-bottom: 5px;
+  padding-left: 16.3px;
+  padding-right: 0;
+  padding-top: 2.6px;
+}
+
+[data-col='s3c3'] .moh-block + .moh-block {
+  background-size: 252px 1px;
+}
+
+/* Its shaded bars bleed to the column's edges, whatever the text indent is.
+   This column carries no right padding, so the bar takes no right bleed either
+   — otherwise it would run out over the form's own border. */
+[data-col='s3c3'] .moh-block__section {
+  margin-left: -16.3px;
+  margin-right: 0;
+}
+
+/* Section 5's bar sits closer to the block above it than section 4's does, and
+   its rows are set on a shorter row than section 4's. */
+[data-col='s3c3'] .moh-block + .moh-block:last-child {
+  margin-top: 6.1px;
+}
+
+[data-col='s3c3'] .moh-block:last-child .moh-row {
+  line-height: 17.45px;
+}
+
+[data-col='s3c3'] .moh-block:last-child .moh-cell__box {
+  height: 17.45px;
+  line-height: 15.45px;
+}
+
+[data-col^='s3'] .moh-block + .moh-block {
+  margin-top: 10.4px;
+}
+
+[data-col='s3c3'] .moh-block + .moh-block {
+  margin-top: 8.9px;
+}
+
+/* A shaded bar stands further off the block above it than a plain one does. */
+[data-col='s3c3'] .moh-block + .moh-block--section {
+  margin-top: 13.3px;
+}
+
+/* The printed form leaves a blank row between the nutrition groups, and runs
+   the infant feeding headings straight into the rows below them. */
+[data-col='s3c2'] .moh-block__heading {
+  margin: 14px 0 10.5px;
+}
+
+/* The blank row only separates the groups; the first sits under the title. */
+[data-col='s3c2'] .moh-block__title + .moh-block__heading {
+  margin-top: 0;
+}
+
+[data-col='s2c2'] .moh-block__heading {
+  margin: 2px 0 1px;
+}
+
+/* 2.5 is set tighter under 2.4 than the form's other headed blocks are. */
+[data-col='s2c2'] .moh-block:nth-child(2) {
+  margin-top: 1.8px;
+}
+
+[data-col='s2c2'] {
+  padding-top: 3.5px;
+}
+
+@media print {
+  .moh-toolbar {
+    display: none;
+  }
+
+  .moh-sheets {
+    overflow: visible;
+  }
 }

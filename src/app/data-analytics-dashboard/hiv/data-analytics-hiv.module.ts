@@ -59,6 +59,7 @@ import { Report731Component } from './report731/report731.component';
 import { Moh731FiltersComponent } from './report731/moh731-filters/moh731-filters.component';
 import { Moh731ReportPatientListComponent } from './report731/moh731-report-patient-list/moh731-report-patient-list.component';
 import { Moh731ReportViewComponent } from './report731/moh731-report-view/moh731-report-view.component';
+import { Moh731TabularViewComponent } from './report731/moh731-tabular/moh731-tabular.component';
 import { HeiRegisterFiltersComponent } from './registers/hei-register/hei-register-filters/hei-register-filters.component';
 
 @NgModule({
@@ -129,6 +130,7 @@ import { HeiRegisterFiltersComponent } from './registers/hei-register/hei-regist
     Moh731FiltersComponent,
     Moh731ReportPatientListComponent,
     Moh731ReportViewComponent,
+    Moh731TabularViewComponent,
     HeiRegisterFiltersComponent
   ],
   providers: [

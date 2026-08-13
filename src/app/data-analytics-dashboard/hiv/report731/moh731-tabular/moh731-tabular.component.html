@@ -1,0 +1,36 @@
+<div *ngIf="!isReleased" class="alert alert-warning">
+  <strong>Viewing a draft version of the MOH 731 report.</strong> This report is
+  not officially released, and is likely to change without warning.
+</div>
+
+<div class="moh-tabular__toolbar">
+  <div class="input-group moh-tabular__search">
+    <span class="input-group-addon"><i class="fa fa-search"></i></span>
+    <input
+      type="text"
+      class="form-control"
+      placeholder="Filter indicators..."
+      [(ngModel)]="quickFilterText"
+    />
+  </div>
+  <button class="btn btn-default btn-sm" (click)="autoSizeColumns()">
+    <i class="fa fa-arrows-h"></i> Fit column widths
+  </button>
+  <button class="btn btn-default btn-sm" (click)="exportToCsv()">
+    <i class="fa fa-file-excel-o"></i> Export CSV
+  </button>
+  <span class="moh-tabular__hint">
+    Click any value to view the patient list behind it.
+  </span>
+</div>
+
+<ag-grid-angular
+  #agGrid
+  class="ag-blue moh-tabular__grid"
+  [rowData]="data"
+  [gridOptions]="gridOptions"
+  [quickFilterText]="quickFilterText"
+  [pinnedBottomRowData]="pinnedBottomRowData"
+  (cellClicked)="onCellClicked($event)"
+>
+</ag-grid-angular>
