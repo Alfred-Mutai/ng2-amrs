@@ -112,7 +112,13 @@ export class PrepReportBaseComponent implements OnInit {
         this.prepReportSummaryData = data.result;
         this.calculateTotalSummary();
         this.isLoading = false;
-        this.showDraftReportAlert(this._month);
+        // The server decides this from the released month, so it stays correct
+        // when a month is released late or re-opened. Fall back to the
+        // month-based guess only if an older API omits the flag.
+        this.isReleased =
+          data.isReleased === undefined
+            ? this.isMonthReleased(this._month)
+            : data.isReleased;
       }
     });
   }
@@ -164,10 +170,12 @@ export class PrepReportBaseComponent implements OnInit {
   }
 
   public showDraftReportAlert(date) {
-    if (date != null && date >= Moment().endOf('month').format('YYYY-MM-DD')) {
-      this.isReleased = false;
-    } else {
-      this.isReleased = true;
-    }
+    this.isReleased = this.isMonthReleased(date);
+  }
+
+  private isMonthReleased(date): boolean {
+    return !(
+      date != null && date >= Moment().endOf('month').format('YYYY-MM-DD')
+    );
   }
 }
