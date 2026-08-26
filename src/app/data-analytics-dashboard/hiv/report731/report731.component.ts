@@ -75,7 +75,7 @@ export class Report731Component implements OnInit {
    * Sections of the form to ask the server for. It computes them concurrently,
    * so this is the set the sheet can currently fill rather than a page size.
    */
-  public sectionsToLoad: string[] = ['3'];
+  public sectionsToLoad: string[] = ['1', '3'];
   /** Sections the server reported it could not compute. */
   public sectionErrors: string[] = [];
   /**

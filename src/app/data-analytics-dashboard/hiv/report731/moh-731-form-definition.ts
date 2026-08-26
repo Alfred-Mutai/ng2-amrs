@@ -1151,10 +1151,15 @@ const PATIENT_LIST_AGE_BANDS: { [suffix: string]: string } = {
 };
 
 const PATIENT_LIST_MEASURES: { [field: string]: string } = {
-  screened_tb_less_15: 'age_group_15__below_15__screened_for_tb',
-  screened_tb_greater_15: 'age_group_15__15_and_above__screened_for_tb',
-  start_tpt_less_15: 'age_group_15__below_15__started_tpt',
-  start_tpt_greater_15: 'age_group_15__15_and_above__started_tpt',
+  // 3.3 and 3.4 count the ART starters of the age group rather than their own
+  // clinical flag, so that both blocks tally to 3.1. The list has to follow the
+  // count: filtering on screened_for_tb or started_tpt here would open an empty
+  // list for a box showing a figure, since a starter who was never screened or
+  // never began TPT is counted by the box but carries neither flag.
+  screened_tb_less_15: 'age_group_15__below_15__started_art',
+  screened_tb_greater_15: 'age_group_15__15_and_above__started_art',
+  start_tpt_less_15: 'age_group_15__below_15__started_art',
+  start_tpt_greater_15: 'age_group_15__15_and_above__started_art',
   established: 'is_established',
   not_established: 'is_not_established',
   community: 'is_community_delivery',
