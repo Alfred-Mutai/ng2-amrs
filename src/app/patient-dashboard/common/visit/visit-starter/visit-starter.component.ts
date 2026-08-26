@@ -146,10 +146,13 @@ export class VisitStarterComponent implements OnInit, OnDestroy {
     const location: any = this.userDefaultPropertiesService.getCurrentUserDefaultLocationObject();
     this.retrospectiveDataEntryService.retroSettings.subscribe(
       (retroSettings) => {
+        // Kept in step with the service either way. Assigning it only in the
+        // retrospective branch would leave a stale enabled setting behind after
+        // retrospective entry is switched off.
+        this.retroSettings = retroSettings;
         if (location && location.uuid) {
           if (retroSettings && retroSettings.enabled) {
             this.selectedLocation = retroSettings.location;
-            this.retroSettings = retroSettings;
           } else {
             this.selectedLocation = {
               value: location.uuid,
@@ -168,13 +171,22 @@ export class VisitStarterComponent implements OnInit, OnDestroy {
     this.isBusy = true;
     this.programVisitsConfig = {};
     this.error = '';
+    const isRetrospective = !!(
+      this.retroSettings && this.retroSettings.enabled
+    );
     this._subscription.add(
       this.patientProgramResourceService
         .getPatientProgramVisitTypes(
           this.patientUuid,
           this.programUuid,
           this.programEnrollmentUuid,
-          this.selectedLocation.value
+          this.selectedLocation.value,
+          // Both are required. Omitting them sent the string "undefined" for
+          // retroSpective, which the server reads as truthy and then dates every
+          // rule against an unparseable visitDate, so rules that should refuse a
+          // visit stop refusing anything.
+          isRetrospective.toString(),
+          this.intendedVisitDate(isRetrospective)
         )
         .take(1)
         .subscribe(
@@ -418,6 +430,20 @@ export class VisitStarterComponent implements OnInit, OnDestroy {
 
   public setRetroDateTime(settings) {
     return new Date(settings.visitDate + ', ' + settings.visitTime);
+  }
+
+  /**
+   * The date the visit being started would carry, which is the date the server
+   * has to judge the visit rules against. Retrospective entry back-dates it;
+   * otherwise it is today.
+   */
+  public intendedVisitDate(isRetrospective: boolean): string {
+    const date = isRetrospective
+      ? moment(this.setRetroDateTime(this.retroSettings))
+      : moment();
+    return date.isValid()
+      ? date.format('YYYY-MM-DD')
+      : moment().format('YYYY-MM-DD');
   }
 
   public showModal(modal: TemplateRef<any>) {
