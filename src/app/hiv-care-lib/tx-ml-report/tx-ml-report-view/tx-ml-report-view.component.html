@@ -61,14 +61,7 @@
                 <ng-container *ngFor="let col of grid.children; let i = index">
                   <ng-container *ngIf="i === 0 && a !== 0">
                     <tr>
-                      <th
-                        [attr.colspan]="
-                          gridOptions.columnDefs[0].children[0].value.length *
-                            2 +
-                          3
-                        "
-                        class="header"
-                      >
+                      <th [attr.colspan]="sectionColSpan" class="header">
                         <b>{{ grid.headerName }}</b>
                       </th>
                     </tr>
@@ -82,11 +75,7 @@
                       >
                         {{ val.value[0] }}
                       </th>
-                      <th
-                        *ngIf="
-                          gridOptions.columnDefs[0].children[0].value.length > 1
-                        "
-                      >
+                      <th colspan="3" *ngIf="showAggregateTotals">
                         <b>Total</b>
                       </th>
                     </tr>
@@ -101,11 +90,11 @@
                         <th>F</th>
                         <th>M</th>
                       </ng-container>
-                      <th
-                        *ngIf="
-                          gridOptions.columnDefs[0].children[0].value.length > 1
-                        "
-                      ></th>
+                      <ng-container *ngIf="showAggregateTotals">
+                        <th>F</th>
+                        <th>M</th>
+                        <th>Total</th>
+                      </ng-container>
                     </tr>
                   </ng-container>
                   <ng-container *ngIf="a !== 0 && i < 15">
@@ -136,14 +125,33 @@
                           {{ val.value[1] }}
                         </td>
                       </ng-container>
-                      <td
-                        *ngIf="sectionIndicatorsValues.length > 1"
-                        title="Click to View Total Patientlist"
-                        (click)="setCellSelection(col, col.total, 2, grid)"
-                        class="value"
-                      >
-                        <b>{{ col.total.value }}</b>
-                      </td>
+                      <ng-container *ngIf="showAggregateTotals">
+                        <td
+                          title="Click to View Total Female Patientlist"
+                          (click)="
+                            setCellSelection(col, col.femaleTotal, 0, grid)
+                          "
+                          class="value"
+                        >
+                          <b>{{ col.femaleTotal.value }}</b>
+                        </td>
+                        <td
+                          title="Click to View Total Male Patientlist"
+                          (click)="
+                            setCellSelection(col, col.maleTotal, 1, grid)
+                          "
+                          class="value"
+                        >
+                          <b>{{ col.maleTotal.value }}</b>
+                        </td>
+                        <td
+                          title="Click to View Total Patientlist"
+                          (click)="setCellSelection(col, col.total, 2, grid)"
+                          class="value"
+                        >
+                          <b>{{ col.total.value }}</b>
+                        </td>
+                      </ng-container>
                     </tr>
                   </ng-container>
                   <ng-container *ngIf="i === 15 && a !== 0">
@@ -151,21 +159,47 @@
                       <td style="min-width: 150px"><b>Sub Total</b></td>
                       <ng-container *ngFor="let val of col.value">
                         <td
-                          title="Click to View Total Male Patientlist"
+                          title="Click to View Total Female Patientlist"
                           (click)="setCellSelection(col, val, 0, grid)"
                           class="value"
                         >
                           <b>{{ val.value[0] }}</b>
                         </td>
                         <td
-                          title="Click to View Total Female Patientlist"
+                          title="Click to View Total Male Patientlist"
                           (click)="setCellSelection(col, val, 1, grid)"
                           class="value"
                         >
                           <b>{{ val.value[1] }}</b>
                         </td>
                       </ng-container>
-                      <td *ngIf="sectionIndicatorsValues.length > 1"></td>
+                      <ng-container *ngIf="showAggregateTotals">
+                        <td
+                          title="Click to View Total Female Patientlist"
+                          (click)="
+                            setCellSelection(col, col.femaleTotal, 0, grid)
+                          "
+                          class="value"
+                        >
+                          <b>{{ col.femaleTotal.value }}</b>
+                        </td>
+                        <td
+                          title="Click to View Total Male Patientlist"
+                          (click)="
+                            setCellSelection(col, col.maleTotal, 1, grid)
+                          "
+                          class="value"
+                        >
+                          <b>{{ col.maleTotal.value }}</b>
+                        </td>
+                        <td
+                          title="Click to View Total Patientlist"
+                          (click)="setCellSelection(col, col.total, 2, grid)"
+                          class="value"
+                        >
+                          <b>{{ col.total.value }}</b>
+                        </td>
+                      </ng-container>
                     </tr>
                   </ng-container>
                   <ng-container *ngIf="i === 16 && a !== 0">
@@ -182,7 +216,8 @@
                         </td>
                       </ng-container>
                       <td
-                        *ngIf="sectionIndicatorsValues.length > 1"
+                        *ngIf="showAggregateTotals"
+                        colspan="3"
                         title="Click to View Total Patientlist"
                         (click)="setCellSelection(col, col.total, 2, grid)"
                         class="value"

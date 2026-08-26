@@ -65,10 +65,26 @@ export class TxMlReportViewComponent implements OnInit, OnChanges {
     }
   }
 
+  public get showAggregateTotals(): boolean {
+    return this.sectionIndicatorsValues
+      ? this.sectionIndicatorsValues.length > 1
+      : false;
+  }
+
+  public get sectionColSpan(): number {
+    const locationCount = this.sectionIndicatorsValues
+      ? this.sectionIndicatorsValues.length
+      : 0;
+    // Location column + F/M per location + the aggregate F/M/Total group
+    return locationCount * 2 + (this.showAggregateTotals ? 4 : 1);
+  }
+
   public setColumns(sectionsData: Array<any>) {
     this.headers = [];
     const defs = [];
     let sumOfValue = [];
+    let femaleValues = [];
+    let maleValues = [];
     let locations = [];
 
     for (let i = 0; i < sectionsData.length; i++) {
@@ -86,11 +102,11 @@ export class TxMlReportViewComponent implements OnInit, OnChanges {
         const indicator = section.indicators[j];
         const isArrayIndicator = Array.isArray(indicator.indicator);
 
-        let m_indicatorDefinition, f_indicatorDefinition, indicatorDefinition;
+        let f_indicatorDefinition, m_indicatorDefinition, indicatorDefinition;
 
         if (isArrayIndicator) {
-          m_indicatorDefinition = indicator.indicator[0];
-          f_indicatorDefinition = indicator.indicator[1];
+          f_indicatorDefinition = indicator.indicator[0];
+          m_indicatorDefinition = indicator.indicator[1];
         } else {
           indicatorDefinition = indicator.indicator;
         }
@@ -101,7 +117,9 @@ export class TxMlReportViewComponent implements OnInit, OnChanges {
           description: indicator.description,
           value: [],
           width: 360,
-          total: 0
+          total: 0,
+          femaleTotal: 0,
+          maleTotal: 0
         };
 
         this.sectionIndicatorsValues.forEach((element) => {
@@ -114,13 +132,15 @@ export class TxMlReportViewComponent implements OnInit, OnChanges {
           };
           if (isArrayIndicator) {
             if (
-              (element[m_indicatorDefinition] ||
-                element[m_indicatorDefinition] === 0) &&
               (element[f_indicatorDefinition] ||
-                element[f_indicatorDefinition] === 0)
+                element[f_indicatorDefinition] === 0) &&
+              (element[m_indicatorDefinition] ||
+                element[m_indicatorDefinition] === 0)
             ) {
-              val.value[0] = element[m_indicatorDefinition];
-              val.value[1] = element[f_indicatorDefinition];
+              val.value[0] = element[f_indicatorDefinition];
+              val.value[1] = element[m_indicatorDefinition];
+              femaleValues.push(val.value[0]);
+              maleValues.push(val.value[1]);
               sumOfValue.push(val.value[0]);
               sumOfValue.push(val.value[1]);
               locations.push(element['location_uuid']);
@@ -133,6 +153,7 @@ export class TxMlReportViewComponent implements OnInit, OnChanges {
               element[indicatorDefinition] === 0
             ) {
               val.value[0] = element[indicatorDefinition];
+              femaleValues.push(val.value[0]);
               sumOfValue.push(val.value[0]);
               locations.push(element['location_uuid']);
             }
@@ -145,23 +166,15 @@ export class TxMlReportViewComponent implements OnInit, OnChanges {
           this.multipleLocations = true;
           this.pdfWidth = 2;
 
-          const sum = sumOfValue.reduce((partial_sum, a) => partial_sum + a, 0);
-
-          if (typeof sum === 'string') {
-            child.total = {
-              location: locations,
-              value: 'Total'
-            };
-          } else {
-            child.total = {
-              location: locations,
-              value: sum
-            };
-          }
-
-          sumOfValue = [];
-          locations = [];
+          child.total = this.aggregate(sumOfValue, locations);
+          child.femaleTotal = this.aggregate(femaleValues, locations);
+          child.maleTotal = this.aggregate(maleValues, locations);
         }
+
+        sumOfValue = [];
+        femaleValues = [];
+        maleValues = [];
+        locations = [];
 
         created.children.push(child);
       }
@@ -171,6 +184,16 @@ export class TxMlReportViewComponent implements OnInit, OnChanges {
 
     this.gridOptions.columnDefs = defs;
   }
+
+  public aggregate(values: Array<any>, locations: Array<any>) {
+    const sum = values.reduce((partial_sum, a) => partial_sum + a, 0);
+
+    return {
+      location: locations.slice(),
+      value: typeof sum === 'string' ? 'Total' : sum
+    };
+  }
+
   public setCellSelection(col, val, arrayPosition, grid) {
     const gender = `${grid.headerName} - ${this.checkGender(arrayPosition)}`;
     const arraypos = arrayPosition === 3 ? 0 : arrayPosition;
@@ -273,6 +296,29 @@ export class TxMlReportViewComponent implements OnInit, OnChanges {
         data.push(obj);
       });
     });
+
+    if (this.showAggregateTotals) {
+      array.slice(1).forEach(function (filteredItem, index1) {
+        const obj = {};
+        obj['County'] = index1 === 0 ? 'All Locations' : '';
+        obj['Clinic'] = index1 === 0 ? 'Total' : '';
+        obj['Facility'] = '';
+        obj['Mfl Code'] = '';
+        if (regex.test(title)) {
+          obj['Indicator'] = filteredItem.headerName;
+        }
+
+        filteredItem.children.forEach(function (ageSeg) {
+          if (!ageSeg.headerName.includes('Total')) {
+            obj[`${ageSeg.headerName} (Female)`] = ageSeg.femaleTotal.value;
+            obj[`${ageSeg.headerName} (Male)`] = ageSeg.maleTotal.value;
+          } else {
+            obj[`${ageSeg.headerName}`] = ageSeg.total.value;
+          }
+        });
+        data.push(obj);
+      });
+    }
 
     this.exportToCSV(data, title);
   }
