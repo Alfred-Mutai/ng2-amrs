@@ -164,7 +164,7 @@
       "routes": []
     },
     {
-      "programName": "PMTCT",
+      "programName": "VTP",
       "programUuid": "781d897a-1359-11df-a1f1-0026b9348838",
       "baseRoute": "781d897a-1359-11df-a1f1-0026b9348838",
       "alias": "hiv",
