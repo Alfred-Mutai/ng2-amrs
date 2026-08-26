@@ -62,63 +62,77 @@
       <h4 class="component-title">Last Encounter</h4>
       <div class="col-md-12">
         <div class="full-width">
-          <p>
-            Location:
-            {{
-              latestEncounterLocation?.name
-                ? latestEncounterLocation?.name
-                : patientData.clinic
-            }}
+          <p class="field">
+            <span class="field-label">Location:</span>&ngsp;<span
+              class="field-value"
+              >{{
+                latestEncounterLocation?.name
+                  ? latestEncounterLocation?.name
+                  : patientData.clinic
+              }}</span
+            >
           </p>
         </div>
       </div>
       <div class="snapshot-body">
         <div class="col-md-12">
           <div class="col-md-6 col-xs-12">
-            <p>
-              Date: {{ patientData?.encounter_datetime | date: 'dd-MM-yyyy' }}
+            <p class="field">
+              <span class="field-label">Date:</span>&ngsp;<span
+                class="field-value"
+                >{{ patientData?.encounter_datetime | ordinalDate }}</span
+              >
             </p>
           </div>
           <div class="col-md-6 col-xs-12">
-            <p>
-              Type:
-              {{
-                patientData?.encounter_type_name
-                  ? patientData?.encounter_type_name
-                  : 'None'
-              }}
+            <p class="field">
+              <span class="field-label">Type:</span>&ngsp;<span
+                class="field-value"
+                >{{
+                  patientData?.encounter_type_name
+                    ? patientData?.encounter_type_name
+                    : 'None'
+                }}</span
+              >
             </p>
           </div>
         </div>
         <div class="col-md-12">
           <div class="col-md-6 col-xs-12">
-            <p>ARV Regimen: {{ patientData?.cur_arv_meds }}</p>
+            <p class="field">
+              <span class="field-label">ARV Regimen:</span>&ngsp;<span
+                class="field-value"
+                >{{ patientData?.cur_arv_meds }}</span
+              >
+            </p>
           </div>
           <div class="col-md-6 col-xs-12">
             <p
+              class="field"
               *ngIf="!isHEIActive"
               [ngClass]="{ 'text-bold red': isVirallyUnsuppressed }"
             >
-              Last Viral Load: {{ patientData?.latest_vl | zeroVl }}
-              <ng-container *ngIf="patientData.latest_vl !== undefined">
-                (<span>{{
-                  patientData?.latest_vl_date | date: 'dd-MM-yyyy'
-                }}</span
-                >)
-              </ng-container>
+              <span class="field-label">Last Viral Load:</span>&ngsp;<span
+                class="field-value"
+                >{{ (patientData?.latest_vl | zeroVl) || '—' }}</span
+              >&ngsp;<span
+                class="field-date"
+                *ngIf="patientData?.latest_vl_date"
+                >({{ patientData?.latest_vl_date | ordinalDate }})</span
+              >
             </p>
             <p
+              class="field"
               *ngIf="isHEIActive"
               [ngClass]="{ 'text-bold red': isVirallyUnsuppressed }"
             >
-              Age PCR Done: {{ age_of_ped_on_last_pcr }}
-            </p>
-            <p>
-              <i
-                style="font-size: smaller"
-                class="text-muted"
-                *ngIf="patientData?.isPendingViralLoad?.status"
+              <span class="field-label">Age PCR Done:</span>&ngsp;<span
+                class="field-value"
+                >{{ age_of_ped_on_last_pcr }}</span
               >
+            </p>
+            <p *ngIf="patientData?.isPendingViralLoad?.status">
+              <i style="font-size: smaller" class="text-muted">
                 There is a Pending Viral Load Test Ordered on:
                 <span
                   [ngClass]="
@@ -128,124 +142,168 @@
                       : ''
                   "
                 >
-                  {{ patientData?.vl_order_date | date: 'dd-MM-yyyy' }}
+                  {{ patientData?.vl_order_date | ordinalDate }}
                 </span>
               </i>
             </p>
           </div>
         </div>
+        <div class="col-md-12" *ngIf="!isHEIActive">
+          <div class="col-md-6 col-xs-12" *ngIf="latestCd4">
+            <p class="field">
+              <span class="field-label">{{ latestCd4.label }}:</span>&ngsp;<span
+                class="field-value"
+                >{{ latestCd4.value }}</span
+              >&ngsp;<span class="field-date"
+                >({{ latestCd4.date | ordinalDate }})</span
+              >
+            </p>
+          </div>
+          <div class="col-md-6 col-xs-12" *ngIf="!isHEIActive">
+            <p class="field">
+              <span class="field-label">RTC Date:</span>&ngsp;<span
+                class="field-value"
+                >{{ patientData?.rtc_date | ordinalDate }}</span
+              >
+            </p>
+          </div>
+        </div>
         <div class="col-md-12">
-          <div class="col-md-6 col-xs-12">
-            <p *ngIf="!isHEIActive">
-              RTC Date: {{ patientData?.rtc_date | date: 'dd-MM-yyyy' }}
+          <div
+            class="col-md-6 col-xs-12"
+            *ngIf="!isHEIActive && patientData.hpv != null"
+          >
+            <p class="field">
+              <span class="field-label">HPV Test:</span>&ngsp;<span
+                class="field-value"
+                >{{
+                  patientData?.hpv == 664
+                    ? 'NEGATIVE'
+                    : patientData?.hpv == 703
+                    ? 'POSITIVE'
+                    : patientData?.hpv == 1138
+                    ? 'INDETERMINATE'
+                    : ''
+                }}</span
+              >&ngsp;<span class="field-date" *ngIf="patientData?.hpv_test_date"
+                >({{ patientData?.hpv_test_date | ordinalDate }})</span
+              >
             </p>
-            <p *ngIf="!isHEIActive && patientData.hpv != null">
-              HPV Test:
-              {{
-                patientData?.hpv == 664
-                  ? 'NEGATIVE'
-                  : patientData?.hpv == 703
-                  ? 'POSITIVE'
-                  : patientData?.hpv == 1138
-                  ? 'INDETERMINATE'
-                  : ''
-              }}
+          </div>
+          <div class="col-md-6 col-xs-12" *ngIf="isHEIActive">
+            <p class="field">
+              <span class="field-label">Infant Feeding Method:</span>&ngsp;<span
+                class="field-value"
+                >{{ infant_feeding_method }}</span
+              >
             </p>
-            <p *ngIf="!isHEIActive && patientData.hpv != null">
-              HPV Test Date:
-              {{ patientData?.hpv_test_date | date: 'dd-MM-yyyy' }}
+          </div>
+          <div class="col-md-6 col-xs-12" *ngIf="!isHEIActive">
+            <p class="field">
+              <span class="field-label">Disclosure Status:</span>&ngsp;<span
+                class="field-value"
+                style="text-transform: capitalize"
+                >{{ hivDisclosureStatus }}</span
+              >
             </p>
-            <p *ngIf="isHEIActive">
-              Infant Feeding Method: {{ infant_feeding_method }}
-            </p>
-
-            <p *ngIf="!isHEIActive">
-              Disclosure Status:
-              <span style="text-transform: capitalize">
-                {{ hivDisclosureStatus }}
+          </div>
+          <div
+            class="col-md-12 col-xs-12"
+            *ngIf="covid19VaccinationSummary?.vaccination_status"
+          >
+            <p class="field">
+              <span class="field-label">COVID-19 Vaccination Status:</span
+              >&ngsp;<span class="field-value">{{
+                covid19VaccinationSummary?.vaccination_status
+              }}</span
+              >&ngsp;<span
+                class="field-note"
+                style="text-transform: capitalize"
+                *ngIf="
+                  covid19VaccinationSummary?.first_dose_vaccine_administered
+                "
+              >
+                ({{ covid19VaccinationSummary.first_dose_vaccine_administered }}
+                :
+                {{
+                  covid19VaccinationSummary.date_given_first_dose | ordinalDate
+                }})
+              </span>
+              <span
+                class="field-note"
+                style="text-transform: capitalize"
+                *ngIf="
+                  covid19VaccinationSummary?.second_dose_vaccine_administered
+                "
+              >
+                ({{
+                  covid19VaccinationSummary.second_dose_vaccine_administered
+                }}
+                :
+                {{
+                  covid19VaccinationSummary.date_given_second_dose
+                    | ordinalDate
+                }})
+              </span>
+              <span
+                style="
+                  text-transform: capitalize;
+                  color: red;
+                  padding: 2px 2px 2px 2px;
+                "
+                *ngIf="
+                  covid19VaccinationSummary?.vaccination_status_code_message
+                "
+              >
+                {{ covid19VaccinationSummary.vaccination_status_code_message }}
               </span>
             </p>
-            <div *ngIf="covid19VaccinationSummary?.vaccination_status">
-              <p>
-                COVID-19 Vaccination Status:
-                <span>
-                  {{ covid19VaccinationSummary?.vaccination_status }}
-                </span>
-                <span
-                  style="text-transform: capitalize"
-                  *ngIf="
-                    covid19VaccinationSummary?.first_dose_vaccine_administered
-                  "
-                >
-                  ({{
-                    covid19VaccinationSummary.first_dose_vaccine_administered
-                  }}
-                  : {{ covid19VaccinationSummary.date_given_first_dose }})
-                </span>
-                <span
-                  style="text-transform: capitalize"
-                  *ngIf="
-                    covid19VaccinationSummary?.second_dose_vaccine_administered
-                  "
-                >
-                  ({{
-                    covid19VaccinationSummary.second_dose_vaccine_administered
-                  }}
-                  : {{ covid19VaccinationSummary.date_given_second_dose }})
-                </span>
-                <span
-                  style="
-                    text-transform: capitalize;
-                    color: red;
-                    padding: 2px 2px 2px 2px;
-                  "
-                  *ngIf="
-                    covid19VaccinationSummary?.vaccination_status_code_message
-                  "
-                >
-                  {{
-                    covid19VaccinationSummary.vaccination_status_code_message
-                  }}
-                </span>
-              </p>
-            </div>
           </div>
           <div *ngIf="isHEIActive" class="col-md-6 col-xs-12">
-            <p>
-              PCR Results:
-              <span style="text-transform: capitalize">
-                {{ last_pcr_status }}
-              </span>
+            <p class="field">
+              <span class="field-label">PCR Results:</span>&ngsp;<span
+                class="field-value"
+                style="text-transform: capitalize"
+                >{{ last_pcr_status }}</span
+              >
             </p>
           </div>
           <div
             class="col-md-6 col-xs-12"
             *ngIf="showCareStatus && !isHEIActive"
           >
-            <p>
-              Care Status:
-              <span style="text-transform: capitalize">
-                {{ resolvedCareStatus }}
-              </span>
+            <p class="field">
+              <span class="field-label">Care Status:</span>&ngsp;<span
+                class="field-value"
+                style="text-transform: capitalize"
+                >{{ resolvedCareStatus }}</span
+              >
             </p>
             <div *ngIf="showCMSummary">
-              <p>
-                <span>
-                  Date Started Cryptococcal Treatment:
-                  {{ cm_treatment_start_date | date: 'dd-MM-yyyy' }}
-                </span>
+              <p class="field">
+                <span class="field-label"
+                  >Date Started Cryptococcal Treatment:</span
+                >&ngsp;<span class="field-value">{{
+                  cm_treatment_start_date | ordinalDate
+                }}</span>
               </p>
-              <p>
-                <span style="text-transform: capitalize">
-                  Cryptococcal Status: {{ cm_treatment_status }}, (Phase :
-                  {{ cm_treatment_phase }})
-                </span>
+              <p class="field">
+                <span class="field-label">Cryptococcal Status:</span>&ngsp;<span
+                  class="field-value"
+                  style="text-transform: capitalize"
+                  >{{ cm_treatment_status }}</span
+                >&ngsp;<span
+                  class="field-note"
+                  style="text-transform: capitalize"
+                  >(Phase : {{ cm_treatment_phase }})</span
+                >
               </p>
-              <p>
-                <span style="text-transform: capitalize">
-                  Date completed cryptococcal treatment:
-                  {{ cm_treatment_end_date | date: 'dd-MM-yyyy' }}
-                </span>
+              <p class="field">
+                <span class="field-label"
+                  >Date completed cryptococcal treatment:</span
+                >&ngsp;<span class="field-value">{{
+                  cm_treatment_end_date | ordinalDate
+                }}</span>
               </p>
             </div>
           </div>
@@ -253,9 +311,11 @@
             class="col-md-6 col-xs-12"
             *ngIf="patientData.med_pickup_rtc_date"
           >
-            <p>
-              Medication Pickup Date:
-              {{ patientData?.med_pickup_rtc_date | date: 'dd-MM-yyyy' }}
+            <p class="field">
+              <span class="field-label">Medication Pickup Date:</span
+              >&ngsp;<span class="field-value">{{
+                patientData?.med_pickup_rtc_date | ordinalDate
+              }}</span>
             </p>
           </div>
         </div>
@@ -268,22 +328,23 @@
             "
           >
             <div class="col-md-12 col-xs-12">
-              <p>
-                {{
-                  cervicalScreeningSummary[0].tah_done == '1'
-                    ? 'Previous Cervical Cancer Screening'
-                    : 'Cervical Cancer Screening'
-                }}
-                :
-                <span>
-                  {{ latestCervicalScreeningSummary.test }}
-                </span>
-                <span style="text-transform: capitalize">
-                  ({{ latestCervicalScreeningSummary.test_date }}) :
-                </span>
-                <span style="text-transform: capitalize">
-                  {{ latestCervicalScreeningSummary?.via_test_result }}
-                </span>
+              <p class="field">
+                <span class="field-label"
+                  >{{
+                    cervicalScreeningSummary[0].tah_done == '1'
+                      ? 'Previous Cervical Cancer Screening'
+                      : 'Cervical Cancer Screening'
+                  }}:</span
+                >&ngsp;<span class="field-value"
+                  >{{ latestCervicalScreeningSummary.test }}&ngsp;<span
+                    style="text-transform: capitalize"
+                    >{{ latestCervicalScreeningSummary?.via_test_result }}</span
+                  ></span
+                >&ngsp;<span class="field-note"
+                  >({{
+                    latestCervicalScreeningSummary.test_date | ordinalDate
+                  }})</span
+                >
               </p>
             </div>
           </div>
@@ -291,14 +352,16 @@
             class="col-md-12"
             *ngIf="cervicalScreeningSummary[0]?.tah_done == '1'"
           >
-            <p>
-              Latest Cervical Cancer Screening Status :
-              <strong
-                >{{ ' Not Done: Total Abdominal Hysterectomy - TAH ('
-                }}{{
+            <p class="field">
+              <span class="field-label"
+                >Latest Cervical Cancer Screening Status:</span
+              >&ngsp;<span class="field-value"
+                >Not Done: Total Abdominal Hysterectomy - TAH</span
+              >&ngsp;<span class="field-note"
+                >({{
                   cervicalScreeningSummary[0]?.tah_confirmation_datetime
-                    | date: 'dd-MM-yyyy'
-                }}{{ ')' }}</strong
+                    | ordinalDate
+                }})</span
               >
             </p>
           </div>
@@ -309,10 +372,10 @@
             *ngIf="hasMoriskyScore && !isMoriskyScorePoorOrInadequate"
           >
             <div class="col-md-6 col-xs-12">
-              <p>
-                Morisky Score:
-                <span style="font-weight: 500; padding: 2px 2px 2px 2px">
-                  {{ moriskyScore }}{{ moriskyDenominator }} -
+              <p class="field">
+                <span class="field-label">Morisky Score:</span>&ngsp;<span
+                  class="field-value"
+                  >{{ moriskyScore }}{{ moriskyDenominator }} -
                   {{ moriskyRating }}</span
                 >
               </p>
@@ -323,13 +386,10 @@
             *ngIf="hasMoriskyScore && isMoriskyScorePoorOrInadequate"
           >
             <div class="col-md-6 col-xs-12">
-              <p>
-                Morisky Score:
-                <span
-                  class="score"
-                  style="color: red; padding: 2px 2px 2px 2px"
-                >
-                  {{ moriskyScore }}{{ moriskyDenominator }} -
+              <p class="field">
+                <span class="field-label">Morisky Score:</span>&ngsp;<span
+                  class="field-value score"
+                  >{{ moriskyScore }}{{ moriskyDenominator }} -
                   {{ moriskyRating }}</span
                 >
               </p>
@@ -338,10 +398,20 @@
         </div>
         <div *ngIf="isHEIActive" class="col-md-12">
           <div class="col-md-6 col-xs-12">
-            <p>RTC Date: {{ patientData?.rtc_date | date: 'dd-MM-yyyy' }}</p>
+            <p class="field">
+              <span class="field-label">RTC Date:</span>&ngsp;<span
+                class="field-value"
+                >{{ patientData?.rtc_date | ordinalDate }}</span
+              >
+            </p>
           </div>
           <div class="col-md-6 col-xs-12">
-            <p>Date of PCR: {{ last_pcr_date | date: 'dd-MM-yyyy' }}</p>
+            <p class="field">
+              <span class="field-label">Date of PCR:</span>&ngsp;<span
+                class="field-value"
+                >{{ last_pcr_date | ordinalDate }}</span
+              >
+            </p>
           </div>
         </div>
         <div class="clear"></div>

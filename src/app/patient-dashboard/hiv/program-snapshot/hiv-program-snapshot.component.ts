@@ -481,6 +481,38 @@ export class HivProgramSnapshotComponent implements OnInit {
     }
   }
 
+  /**
+   * The latest CD4 result, which is recorded either as a CD4 count or as a CD4
+   * lateral flow reading. The backend returns whichever of the two was resulted
+   * most recently, so the label reflects the test the value actually came from.
+   */
+  public get latestCd4(): { label: string; value: any; date: any } | null {
+    const data = this.patientData;
+    if (_.isNil(data) || _.isNil(data.latest_cd4_date)) {
+      return null;
+    }
+
+    const count = data.latest_cd4_count;
+    if (!_.isNil(count) && count !== '') {
+      return {
+        label: 'Latest CD4',
+        value: count,
+        date: data.latest_cd4_date
+      };
+    }
+
+    const lateralFlow = data.latest_cd4_lateral_flow;
+    if (!_.isNil(lateralFlow) && lateralFlow !== '') {
+      return {
+        label: 'Latest CD4 Lateral Flow',
+        value: lateralFlow,
+        date: data.latest_cd4_date
+      };
+    }
+
+    return null;
+  }
+
   private getlatestVlResult(hivSummaryData) {
     const orderByVlDate = _.orderBy(
       hivSummaryData,

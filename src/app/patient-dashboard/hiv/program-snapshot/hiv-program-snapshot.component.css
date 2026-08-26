@@ -11,6 +11,68 @@ div[class^='col-md'] {
   display: inline-block;
 }
 
+/*
+ * Last Encounter field rows. Every field reads as a muted label followed by an
+ * emphasised value, so the block stays scannable when values are long (e.g.
+ * "CD4 COUNT GREATER THAN 200") or absent.
+ */
+/*
+ * One rule for every field row, with no :last-child exception, so the gap is
+ * identical between all lines regardless of which column wrapper a field sits
+ * in. Nested wrappers (cryptococcal, COVID) are matched too.
+ */
+.snapshot-summary p {
+  margin: 0 0 8px 0;
+  line-height: 1.5;
+}
+
+/* Column wrappers must not add rhythm of their own. */
+.snapshot-summary .snapshot-body div[class^='col-'],
+.snapshot-summary .full-width {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/*
+ * Inline flow, not flex: the label, value and date read as one sentence and
+ * only wrap when the text genuinely runs out of room. A flex row would put each
+ * span on its own line as soon as the column got narrow.
+ */
+.snapshot-summary .field-label {
+  color: #6c757d;
+  margin-right: 2px;
+}
+
+.snapshot-summary .field-value {
+  font-weight: 600;
+  color: #212529;
+  overflow-wrap: break-word;
+}
+
+.snapshot-summary .field-date {
+  color: #6c757d;
+  font-size: 0.9em;
+  white-space: nowrap;
+}
+
+/* Supplementary detail after a value, e.g. the COVID dose/date pairs. Unlike
+   .field-date this is allowed to wrap, since it can be long. */
+.snapshot-summary .field-note {
+  color: #6c757d;
+  font-size: 0.9em;
+}
+
+.snapshot-summary .field.red .field-value,
+.snapshot-summary .field.red .field-label {
+  color: red;
+}
+
+/* Keep the alert colouring of .score, which .field-value would otherwise win. */
+.snapshot-summary .field-value.score {
+  color: red;
+  font-weight: bold;
+}
+
 .snapshot {
   padding-left: 15px;
   padding-right: 15px;

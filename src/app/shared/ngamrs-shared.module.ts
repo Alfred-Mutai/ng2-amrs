@@ -63,6 +63,7 @@ import { CdmProgramSnapshotComponent } from '../patient-dashboard/cdm/program-sn
 import { FormListComponent } from '../patient-dashboard/common/forms/form-list.component';
 import { ReportFiltersComponent } from './report-filters/report-filters.component';
 import { ZeroVlPipe } from './pipes/zero-vl-pipe';
+import { OrdinalDatePipe } from './pipes/ordinal-date.pipe';
 import { PatientEncounterObservationsComponent } from '../patient-dashboard/common/patient-encounters/patient-encounter-observations.component';
 import { PrettyEncounterViewerComponent } from '../patient-dashboard/common/formentry/pretty-encounter-viewer.component';
 import { RetrospectiveDataEntryModule } from '../retrospective-data-entry/retrospective-data-entry.module';
@@ -149,6 +150,7 @@ import { LocatorPrettyViewerComponent } from '../patient-dashboard/common/formen
     FormListComponent,
     ReportFiltersComponent,
     ZeroVlPipe,
+    OrdinalDatePipe,
     PrettyEncounterViewerComponent,
     DateSelectorComponent,
     PdfViewerModule,
@@ -185,6 +187,7 @@ import { LocatorPrettyViewerComponent } from '../patient-dashboard/common/formen
     DisplayErrorComponent,
     StringToDatePipe,
     ZeroVlPipe,
+    OrdinalDatePipe,
     Ng2FilterPipe,
     HivProgramSnapshotComponent,
     ProgramSnapshotNegativesComponent,
