@@ -21,9 +21,43 @@ export class Moh731ReportPatientListComponent implements OnInit {
    */
   public static readonly PAGE_SIZE = 1000;
 
+  /**
+   * The PrEP boxes of section 1 are about clients who are HIV negative, so the
+   * treatment columns this list normally carries - viral load, ARV regimen, TB
+   * and cervical screening - are empty for every row. These are the columns the
+   * PrEP monthly report's own list shows, kept in step with it deliberately so
+   * the same client reads the same way in both places.
+   */
+  private static readonly PREP_COLUMNS = {
+    phone_number: 'Phone',
+    location: 'Location',
+    enrollment_date: 'Date Enrolled',
+    encounter_date: 'Encounter Date',
+    last_appointment: 'Last Appointment',
+    prev_rtc_date: 'Previous RTC Date',
+    latest_rtc_date: 'RTC Date',
+    days_since_rtc_date: 'Days missed since RTC',
+    cur_prep_meds_names: 'Current prEp Regimen',
+    initiation_reason: 'Reason for Initiation',
+    hiv_rapid_test: 'HIV Rapid test result',
+    rapid_test_date: 'HIV Rapid test date',
+    population_type: 'Population Type',
+    discontinue_reason: 'Reason for Discontinued',
+    ovcid_id: 'OVCID',
+    population_type_category: 'Population Type Category',
+    nearest_center: 'Estate/Nearest Center'
+  };
+
   public params: any;
   public patientData: any;
   public extraColumns: Array<any> = [];
+  /**
+   * Columns the grid shows by default that a PrEP client has no value for, so
+   * they would read blank or "No CCC" on every row.
+   */
+  public hideColumns: Array<string> = [];
+  /** Columns that belong at a set position rather than appended at the end. */
+  public insertColumns: Array<any> = [];
   public isLoading = true;
   public overrideColumns: Array<any> = [];
   public selectedIndicator: string;
@@ -172,7 +206,29 @@ export class Moh731ReportPatientListComponent implements OnInit {
     this.busyIndicator = { busy: false, message: '' };
   }
 
+  /** Whether the box being drilled into is one of the PrEP boxes. */
+  private isPrepIndicator(): boolean {
+    const indicator = (this.params && this.params.indicators) || '';
+    return /^(prep_new_|prep_sti_|seroconverted_)/.test(String(indicator));
+  }
+
   public addExtraColumns() {
+    if (this.isPrepIndicator()) {
+      this.hideColumns = ['ccc_number', 'upi_number'];
+      this.insertColumns = [
+        {
+          after: 'age',
+          column: {
+            headerName: 'Date of Birth',
+            width: 110,
+            field: 'birthdate'
+          }
+        }
+      ];
+      this.addColumns(Moh731ReportPatientListComponent.PREP_COLUMNS);
+      this.addOverrideColumns();
+      return;
+    }
     const extraColumns = {
       ccc_number: 'CCC Number',
       upi_number: 'UPI Number',
@@ -235,21 +291,33 @@ export class Moh731ReportPatientListComponent implements OnInit {
     // The grid appends these to its own standard columns, so anything it
     // already shows would appear twice. Its version is kept: it carries the
     // widths and cell renderers this list would otherwise lose.
+    this.addColumns(extraColumns);
+    this.addOverrideColumns();
+  }
+
+  /**
+   * Appends a set of columns to the grid's own, skipping any the grid already
+   * shows: its version carries the widths and cell renderers this list would
+   * otherwise lose, and a duplicate would render the column twice.
+   */
+  private addColumns(columns: { [field: string]: string }) {
     const alreadyShown = new Set(
       PatientListColumns.columns()
         .map((column: any) => column.field)
         .filter((field: any) => !!field)
     );
 
-    for (const indicator in extraColumns) {
+    for (const indicator in columns) {
       if (indicator && !alreadyShown.has(indicator)) {
         this.extraColumns.push({
-          headerName: extraColumns[indicator],
+          headerName: columns[indicator],
           field: indicator
         });
       }
     }
+  }
 
+  private addOverrideColumns() {
     this.overrideColumns.push(
       {
         field: 'identifiers',
